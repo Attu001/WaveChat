@@ -3,9 +3,14 @@ import { Link, useNavigate} from "react-router-dom";
 import axios from "axios"
 import {useState} from "react";
 import { loginUser } from "../supabase";
+import Success from "../compoennts/success";
+import Error from "../compoennts/Error";
 
 
 const Login = () => {
+
+  const [success,setSuccess]=useState(false)
+  const [showError,setShowError]=useState(false)
 
     const navigate=useNavigate()
     const [user,setUser]=useState({
@@ -26,33 +31,31 @@ const Login = () => {
     const res = await loginUser(user.email, user.password);
 
     if (res.success) {
-      // setMsg("Login successful!");
-      console.log("User:", res.session.access_token);
+     setSuccess(true);
+     setTimeout(() => {
+      navigate("/")
+     }, 3000);
     } 
     else {
-      console.log(res.message);
+      setShowError(true);
+      
+
     }
   };
-
-
-
-    // const handleLogin =(user)=>{
-    //     axios.post("http://127.0.0.1:8000/api/token/",{
-    //       username:user.email,
-    //       password:user.password
-    //     }).then((res)=>{
-    //       console.log(res)
-    //     }).catch((e)=>{
-    //       console.log(e)
-    //     })
-
-    // }
 
        
     
 
   return (
     <div className="w-screen h-screen bg-gradient-to-br from-purple-500 via-pink-400 to-blue-400 flex items-center justify-center p-4">
+    
+       {
+        success && <Success message="Login Successful! Redirecting..." />
+       }
+       {
+        showError && <Error message="Invalid email or password." />
+       }
+    
       {/* Glassmorphic Container */}
       <div className="bg-white/20 backdrop-blur-2xl rounded-3xl shadow-2xl flex flex-col md:flex-row w-full max-w-5xl h-auto md:h-4/5 overflow-hidden border border-white/30">
         
