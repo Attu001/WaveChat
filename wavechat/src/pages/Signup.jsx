@@ -1,16 +1,16 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { supabase } from "../supabase";
 import Loading from "../compoennts/Loading";
+import { handleSignup } from "../supabase";  // using your function
 
 const Signup = () => {
-  const [loader,setLoader]=useState(false)
+  const [loader, setLoader] = useState(false);
+
   const [user, setUser] = useState({
     fullname: "",
     email: "",
     password: "",
   });
-
 
   const handleChange = (e) => {
     setUser({
@@ -19,36 +19,35 @@ const Signup = () => {
     });
   };
 
-  const handleSignup = async () => {
-    setLoader(true)
-    const { data, error } = await supabase.auth.signUp({
-      email: user.email,
-      password: user.password,
-      display_name:user.fullname
+  // 🔥 FINAL SIGNUP HANDLER (CALLS THE FUNCTION YOU IMPORTED)
+  const onSignup = async () => {
+    setLoader(true);
 
-    });
+    const response = await handleSignup(user);  
+    // response will contain: { success, message }
 
-    if (error) {
-      setLoader(false)
-      alert(error.message);
+    setLoader(false);
+
+    if (!response.success) {
+      alert(response.message);
       return;
     }
-    setLoader(false)
-    alert("Signup successful! Please check your email to verify.");
 
+    alert("Signup successful! Verify your email.");
   };
 
   return (
     <div className="w-screen h-screen bg-gradient-to-br from-purple-500 via-pink-400 to-blue-400 flex items-center justify-center p-4">
-      {
-        loader && <Loading/>
-      }
+      {loader && <Loading />}
+
       <div className="bg-white/20 backdrop-blur-2xl rounded-3xl shadow-2xl flex flex-col md:flex-row w-full max-w-5xl h-auto md:h-4/5 overflow-hidden border border-white/30">
+        
         <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
 
           <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-4 md:mb-6 text-center md:text-left drop-shadow-lg">
             Create Account
           </h1>
+          
           <p className="text-white/80 mb-6 md:mb-8 text-center md:text-left text-lg">
             Sign up to start chatting with your friends
           </p>
@@ -83,9 +82,9 @@ const Signup = () => {
             className="mb-6 p-4 rounded-xl border border-white/40 bg-white/20 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2 backdrop-blur-sm transition-all duration-300 w-full"
           />
 
-          {/* SIGN UP BUTTON */}
+          {/* SIGNUP BUTTON */}
           <button
-            onClick={handleSignup}
+            onClick={onSignup}
             className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-pink-500 hover:to-purple-500 text-white py-4 rounded-xl font-bold transition-all duration-300 w-full shadow-lg hover:scale-105"
           >
             Sign Up
@@ -97,6 +96,7 @@ const Signup = () => {
               <Link to={"/login"}>Login</Link>
             </span>
           </p>
+
         </div>
 
         <div className="w-full md:w-1/2 flex items-center justify-center relative p-6">
@@ -108,6 +108,7 @@ const Signup = () => {
             />
           </div>
         </div>
+
       </div>
     </div>
   );

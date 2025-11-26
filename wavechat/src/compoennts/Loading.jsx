@@ -2,10 +2,10 @@ import React from "react";
 
 const Loading = () => {
   return (
-    <div className="absolute z-50 w-full h-screen flex items-center justify-center bg-gradient-to-br from-purple-500 via-pink-400 to-blue-400">
+    <div className="absolute  w-full h-screen flex items-center justify-center bg-gradient-to-br from-purple-500 via-pink-400 to-blue-400">
       
       {/* Glass Card */}
-      <div className="p-8 rounded-3xl bg-white/20 backdrop-blur-xl shadow-2xl border border-white/30 flex flex-col items-center">
+      <div className="p-8 rounded-3xl bg-white/20 backdrop-blur-xl shadow-2xl border border-white/30 flex flex-col items-center z-50">
         
         {/* Spinner */}
         <div className="relative w-20 h-20 flex items-center justify-center">
