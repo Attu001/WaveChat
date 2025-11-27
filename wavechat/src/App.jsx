@@ -15,7 +15,7 @@ function App() {
       <Route path="/" element={<Home/>}/>
       <Route path="/signup" element={<Signup/>}/>
       <Route path="/chat-screen/:id" element={<ChatScreen/>}/>
-      <Route path="/list" element={<Profilelist/>}/>
+      <Route path="/list" element={<Profilelist/>}/>  
     </Routes>
     </>
   );
