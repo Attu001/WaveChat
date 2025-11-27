@@ -19,7 +19,7 @@ const Signup = () => {
     });
   };
 
-  // 🔥 FINAL SIGNUP HANDLER (CALLS THE FUNCTION YOU IMPORTED)
+  //  FINAL SIGNUP HANDLER (CALLS THE FUNCTION YOU IMPORTED)
   const onSignup = async () => {
     setLoader(true);
 

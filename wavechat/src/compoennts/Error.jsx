@@ -1,5 +1,6 @@
 import React from 'react'
 import { PiWarningCircle } from "react-icons/pi";
+import { useState,useEffect } from 'react';
 const Error = ({message="!Something went Wrong "}) => {
 
       const [show, setShow] = useState(true);

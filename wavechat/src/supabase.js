@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { useId } from "react";
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -27,15 +28,14 @@ export async function loginUser(email, password) {
 // for getting all user
 const getProfiles = async () => {
     const { data, error } = await supabase
-        .from("users_profile")
+        .from("user_profile")
         .select("*");
-
     if (error) {
         console.log("Fetch error:", error);
         return;
     }
 
-    console.log("Profiles:", data);
+    return data;
 };
 
 
@@ -50,6 +50,19 @@ const getProfileByEmail = async (email) => {
 
     return data;
 };
+
+const getProfileByUserId = async (id) => {
+    const { data, error } = await supabase
+        .from("user_profile")
+        .select("fullname")
+        .eq("id", id)
+    if (error){
+        return
+        console.log(error)
+    } ;
+
+    return data;
+}
 
 const handleSignup = async (user) => {
     const { fullname, email, password } = user;
@@ -74,6 +87,7 @@ const handleSignup = async (user) => {
     }
 
     const userId = signUpData.user?.id;
+    console.log(userId)
 
     // 3️⃣ Insert user profile
     if (userId) {
@@ -91,9 +105,18 @@ const handleSignup = async (user) => {
     return { success: true };
 };
 
+const getSession = async () => {
+    const { data, error } = await supabase.auth.getSession();
+    if (error) {
+        console.log("Error getting session:", error);
+        return null;
+    }
+    return data.session;
+};
 
 
-export { getProfiles, getProfileByEmail, handleSignup };
+
+export { getProfiles, getProfileByEmail, handleSignup , getSession,getProfileByUserId};
 
 
 

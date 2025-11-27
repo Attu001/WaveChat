@@ -1,8 +1,20 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { getSession } from "../supabase";
 
 const Home = () => {
     const navigate=useNavigate()
+
+
+    useEffect(()=>{
+        getSession().then((session) => {
+            if (!session) {
+                navigate("/login");
+            }
+        });
+    },[])
+
+    
     return (
         <div className="w-screen min-h-screen bg-gradient-to-br from-purple-500 via-pink-400 to-blue-400 flex flex-col items-center justify-start p-6 md:p-12">
 
@@ -18,7 +30,7 @@ const Home = () => {
                         The fastest and most secure chat application to stay connected with your friends and family. Share messages, images, and emojis in real time.
                     </p>
                     <div className="flex justify-center md:justify-start space-x-4">
-                        <button onClick={()=>navigate("/chat-screen")} className="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 shadow-lg">
+                        <button onClick={()=>navigate("/list")} className="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 shadow-lg">
                             Start Chatting
                         </button>
                         <button className="bg-white/30 hover:bg-white/50 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 shadow-lg">

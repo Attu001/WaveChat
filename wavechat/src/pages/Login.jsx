@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link, useNavigate} from "react-router-dom";
 import axios from "axios"
 import {useState} from "react";
@@ -11,6 +11,11 @@ const Login = () => {
 
   const [success,setSuccess]=useState(false)
   const [showError,setShowError]=useState(false)
+
+  useEffect(()=>{
+    localStorage.clear();
+  },[])
+      
 
     const navigate=useNavigate()
     const [user,setUser]=useState({
@@ -38,7 +43,6 @@ const Login = () => {
     } 
     else {
       setShowError(true);
-      
 
     }
   };
