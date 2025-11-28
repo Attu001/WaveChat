@@ -1,13 +1,18 @@
 import React from 'react'
 import { PiWarningCircle } from "react-icons/pi";
 import { useState,useEffect } from 'react';
+import { useDispatch } from 'react-redux';
+import { setError } from '../slices/ErrorSlice';
 const Error = ({message="!Something went Wrong "}) => {
 
       const [show, setShow] = useState(true);
+      
     
      // Auto-hide after 3 seconds (optional)
       useEffect(() => {
-        const timer = setTimeout(() => setShow(false), 3000);
+        const timer = setTimeout(() =>{
+          setShow(false)
+        } , 3000);
         return () => clearTimeout(timer);
       }, []);
     

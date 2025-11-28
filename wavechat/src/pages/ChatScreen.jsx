@@ -1,122 +1,117 @@
-import React, { useState, useRef, useEffect, use } from "react";
-import { IoIosArrowForward } from "react-icons/io";
+import React, { useState, useEffect, useRef } from "react";
 import { IoIosArrowBack } from "react-icons/io";
-import Chats from "../compoennts/Chats";
 import { getProfileByUserId } from "../supabase";
 import { useParams, useNavigate } from "react-router-dom";
 
 const ChatScreen = () => {
-
     const navigate = useNavigate();
     const { id } = useParams();
-    // console.log("User ID from URL:", id);
-    const [profile, setProfile] = useState([]);
 
+    const [profile, setProfile] = useState([]);
+    const [messages, setMessages] = useState([]);
+    const [newMessage, setNewMessage] = useState("");
+    const ws = useRef(null);
+    const messagesEndRef = useRef(null);
+
+    // Load Profile
     useEffect(() => {
         const fetchProfile = async () => {
             const data = await getProfileByUserId(id);
             setProfile(data);
-
-        }
+        };
         fetchProfile();
-    }
-        , [id]);
+    }, [id]);
 
-    // console.log("Chatting with user ID:", profile);
+    // WebSocket Connection
+    useEffect(() => {
+        if (!id) return;
 
+        ws.current = new WebSocket(`ws://localhost:8000/ws/chat/${id}/`);
 
+        ws.current.onopen = () => console.log("WebSocket Connected");
 
-    const [messages, setMessages] = useState([
-        { id: 1, text: "Hey there!", sender: "friend" },
-        { id: 2, text: "Hello! How are you?", sender: "me" },
-        { id: 3, text: "I'm good, thanks! You?", sender: "friend" },
-    ]);
-    const [newMessage, setNewMessage] = useState("");
-    const messagesEndRef = useRef(null);
+        ws.current.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            console.log("Received:", data);
 
+            if (data.message) {
+                setMessages((prev) => [...prev, data]);
+            }
+        };
 
+        ws.current.onerror = (error) => console.log("WebSocket Error:", error);
+
+        ws.current.onclose = () => console.log("WebSocket Closed");
+
+        return () => ws.current.close();
+    }, [id]);
+
+    // Send Message
     const sendMessage = () => {
         if (!newMessage.trim()) return;
-        setMessages([...messages, { id: Date.now(), text: newMessage, sender: "me" }]);
+
+        const msgObj = {
+            username: profile[0]?.fullname || "Me",
+            message: newMessage,
+        };
+
+        ws.current.send(JSON.stringify(msgObj));
+
+        setMessages((prev) => [...prev, msgObj]);
         setNewMessage("");
     };
 
+    // Auto Scroll
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages]);
 
     return (
-        <div className="w-screen h-screen flex overflow-hidden">
+        <div className="w-screen h-screen flex flex-col bg-gradient-to-br from-purple-300 via-pink-200 to-blue-200">
+            <div className="flex items-center p-4 bg-purple-200/60 backdrop-blur-md">
+                <IoIosArrowBack
+                    className="text-[40px] cursor-pointer"
+                    onClick={() => navigate(`/list`)}
+                />
+                <div className="ml-3 w-10 h-10 rounded-full bg-purple-500 text-white flex items-center justify-center">
+                    {profile[0]?.fullname?.charAt(0)}
+                </div>
+                <span className="ml-3 font-semibold">{profile[0]?.fullname}</span>
+            </div>
 
-
-
-            {
-
-
-                <>
-
-                    <div className="flex-1 flex flex-col bg-gradient-to-br from-purple-300 via-pink-200 to-blue-200">
-
-
-                        {/* Header */}
-                        <div className="flex items-center justify-between p-4 bg-purple-200/60 backdrop-blur-md border-b border-purple-300">
-                            <div className="flex items-center space-x-3">
-                                <div className=" text-lg " onClick={() => navigate(`/list`)}>
-                                    <div>
-                                        <div className=" relative">
-                                            <IoIosArrowBack className="text-[50px]" />
-                                        </div>
-
-                                    </div>
-                                </div>
-                                <div className="w-10 h-10 rounded-full bg-purple-500 flex items-center justify-center text-white font-bold">
-                                    {profile[0]?.fullname.charAt(0)}
-                                </div>
-                                <span className="font-semibold text-gray-800">{profile[0]?.fullname}</span>
-                            </div>
-                            <span className="text-gray-500 text-sm">Online</span>
-                        </div>
-
-                        {/* Messages */}
-                        <div className="flex-1 overflow-y-auto p-4 flex flex-col space-y-3">
-                            {messages.map((msg) => (
-                                <div
-                                    key={msg.id}
-                                    className={`max-w-xs md:max-w-md px-4 py-2 rounded-2xl shadow-md break-words
-                ${msg.sender === "me"
-                                            ? "bg-purple-500 text-white self-end rounded-br-none"
-                                            : "bg-white text-gray-800 self-start rounded-bl-none"
-                                        }`}
-                                >
-                                    {msg.text}
-                                </div>
-                            ))}
-                            <div ref={messagesEndRef} />
-                        </div>
-
-                        {/* Input */}
-                        <div className="p-4 border-t border-purple-300 flex gap-3 bg-purple-100/60 backdrop-blur-md">
-                            <input
-                                type="text"
-                                placeholder="Type a message..."
-                                className="flex-1 p-3 rounded-full border border-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/90"
-                                value={newMessage}
-                                onChange={(e) => setNewMessage(e.target.value)}
-                                onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-                            />
-                            <button
-                                onClick={sendMessage}
-                                className="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-full font-semibold shadow-lg transition-all duration-300"
-                            >
-                                Send
-                            </button>
-                        </div>
+            <div className="flex-1 overflow-y-auto p-4">
+                {messages.map((msg, idx) => (
+                    <div
+                        key={idx}
+                        className={`px-4 py-2 rounded-2xl max-w-xs md:max-w-md mb-2 shadow
+                          ${msg.username === profile[0]?.fullname
+                              ? "bg-purple-500 text-white ml-auto"
+                              : "bg-white text-gray-800"
+                          }
+                        `}
+                    >
+                        {msg.message}
                     </div>
-                </>
-            }
+                ))}
+                <div ref={messagesEndRef} />
+            </div>
 
-            {/* Chat Area */}
-
+            <div className="p-4 flex gap-3 bg-purple-100/60 backdrop-blur-md">
+                <input
+                    type="text"
+                    placeholder="Type a message…"
+                    className="flex-1 p-3 rounded-full border border-purple-300 bg-white"
+                    value={newMessage}
+                    onChange={(e) => setNewMessage(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+                />
+                <button
+                    className="bg-purple-500 text-white px-6 py-3 rounded-full"
+                    onClick={sendMessage}
+                >
+                    Send
+                </button>
+            </div>
         </div>
     );
 };

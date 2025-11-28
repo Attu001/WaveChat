@@ -2,9 +2,21 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import Loading from "../compoennts/Loading";
 import { handleSignup } from "../supabase";  // using your function
+import Error from "../compoennts/Error";
+import { setError } from "../slices/ErrorSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { setSuccess } from "../slices/successSlice";
+import Success from "../compoennts/success";
+
 
 const Signup = () => {
   const [loader, setLoader] = useState(false);
+  const [errorForm, setErrorForm] = useState(false);
+  const dispatch = useDispatch();
+  const { message } = useSelector((state) => state.error);
+  const successMessage = useSelector((state) => state.Success.message);
+
+
 
   const [user, setUser] = useState({
     fullname: "",
@@ -19,35 +31,61 @@ const Signup = () => {
     });
   };
 
-  //  FINAL SIGNUP HANDLER (CALLS THE FUNCTION YOU IMPORTED)
   const onSignup = async () => {
     setLoader(true);
 
-    const response = await handleSignup(user);  
-    // response will contain: { success, message }
+    // EMPTY FIELDS
+    if (user.fullname.trim() === "" || user.email.trim() === "" || user.password.trim() === "") {
+      setErrorForm(false);
+      dispatch(setError("All fields are required!"));
 
-    setLoader(false);
+      setTimeout(() => {
+        setErrorForm(true);
+      }, 20);
 
-    if (!response.success) {
-      alert(response.message);
+      setLoader(false);
       return;
     }
 
-    alert("Signup successful! Verify your email.");
+    const response = await handleSignup(user);
+    setLoader(false);
+
+    // FAILURE CASE
+    if (response.success == false) {
+      setErrorForm(false);
+      dispatch(setError(response.message));
+
+      setTimeout(() => {
+        setErrorForm(true);
+      }, 20);
+
+      return;
+    }
+
+    // SUCCESS CASE
+    setErrorForm(false);
+    dispatch(setSuccess("Signup successful! Verify your email."));
+
+    setTimeout(() => {
+      setErrorForm(true);
+    }, 20);
   };
+
 
   return (
     <div className="w-screen h-screen bg-gradient-to-br from-purple-500 via-pink-400 to-blue-400 flex items-center justify-center p-4">
+      {errorForm && <Error message={message} />}
       {loader && <Loading />}
+      {successMessage && <Success message={successMessage}  />}
 
       <div className="bg-white/20 backdrop-blur-2xl rounded-3xl shadow-2xl flex flex-col md:flex-row w-full max-w-5xl h-auto md:h-4/5 overflow-hidden border border-white/30">
-        
+
         <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
 
           <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-4 md:mb-6 text-center md:text-left drop-shadow-lg">
             Create Account
           </h1>
-          
+
           <p className="text-white/80 mb-6 md:mb-8 text-center md:text-left text-lg">
             Sign up to start chatting with your friends
           </p>

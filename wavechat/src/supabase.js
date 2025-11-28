@@ -72,7 +72,7 @@ const handleSignup = async (user) => {
     console.log("Existing user:", existing);
 
 
-    if (existing !== null) {
+    if (existing && existing.length > 0)  {
         return { success: false, message: "Email already registered!" };
     }
 
@@ -83,6 +83,7 @@ const handleSignup = async (user) => {
     });
 
     if (signUpError) {
+        console.log("Signup error:", signUpError);
         return { success: false, message: signUpError.message };
     }
 

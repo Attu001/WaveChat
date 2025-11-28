@@ -57,7 +57,7 @@ const Profilelist = () => {
 
         <div className="flex gap-3">
           <button
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/home")}
             className="px-4 py-2 bg-white/40 backdrop-blur-md rounded-xl shadow-md text-black font-semibold border border-white/30 hover:bg-white/60 transition-all"
           >
             Home
