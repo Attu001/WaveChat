@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import Loading from "../compoennts/Loading";
+import Loading from "../components/Loading";
 import { handleSignup } from "../supabase";  // using your function
-import Error from "../compoennts/Error";
+import Error from "../components/Error";
 import { setError } from "../slices/errorSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { setSuccess } from "../slices/successSlice";
-import Success from "../compoennts/success";
+import Success from "../components/Success";
 
 
 const Signup = () => {

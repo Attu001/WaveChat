@@ -3,8 +3,8 @@ import { Link, useNavigate} from "react-router-dom";
 import axios from "axios"
 import {useState} from "react";
 import { loginUser } from "../supabase";
-import Success from "../compoennts/success";
-import Error from "../compoennts/Error";
+import Success from "../components/Success";
+import Error from "../components/Error";
 
 
 const Login = () => {
