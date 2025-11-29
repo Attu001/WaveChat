@@ -3,6 +3,7 @@ import { PiWarningCircle } from "react-icons/pi";
 import { useState,useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { setError } from '../slices/errorSlice';
+
 const Error = ({message="!Something went Wrong "}) => {
 
       const [show, setShow] = useState(true);
