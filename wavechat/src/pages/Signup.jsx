@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import Loading from "../compoennts/Loading";
 import { handleSignup } from "../supabase";  // using your function
 import Error from "../compoennts/Error";
-import { setError } from "../slices/ErrorSlice";
+import { setError } from "../slices/errorSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { setSuccess } from "../slices/successSlice";
 import Success from "../compoennts/success";
