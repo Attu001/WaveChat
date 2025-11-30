@@ -13,6 +13,11 @@ const ChatScreen = () => {
     const ws = useRef(null);
     const messagesEndRef = useRef(null);
 
+    const user = JSON.parse(localStorage.getItem("profile"));
+    // console.log(user);
+    const loggedInUSERid = user.id
+    // console.log(loggedInUSERid);
+
     // Load Profile
     useEffect(() => {
         const fetchProfile = async () => {
@@ -22,22 +27,27 @@ const ChatScreen = () => {
         fetchProfile();
     }, [id]);
 
+    // console.log(id)
+
     // WebSocket Connection
     useEffect(() => {
         if (!id) return;
 
-        ws.current = new WebSocket(`ws://localhost:8000/ws/chat/${id}/`);
+        const roomId = [loggedInUSERid, id].sort().join("_");
+
+        ws.current = new WebSocket(`ws://localhost:8000/ws/chat/room/${roomId}/`);
 
         ws.current.onopen = () => console.log("WebSocket Connected");
 
         ws.current.onmessage = (event) => {
             const data = JSON.parse(event.data);
-            console.log("Received:", data);
 
-            if (data.message) {
-                setMessages((prev) => [...prev, data]);
-            }
+            // Prevent duplicate messages
+            if (data.sender === loggedInUSERid) return;
+
+            setMessages((prev) => [...prev, data]);
         };
+
 
         ws.current.onerror = (error) => console.log("WebSocket Error:", error);
 
@@ -51,13 +61,17 @@ const ChatScreen = () => {
         if (!newMessage.trim()) return;
 
         const msgObj = {
-            username: profile[0]?.fullname || "Me",
             message: newMessage,
+            sender: loggedInUSERid,
+            receiver: id
         };
 
+        // Add locally
+        setMessages((prev) => [...prev, msgObj]);
+
+        // Send to WebSocket
         ws.current.send(JSON.stringify(msgObj));
 
-        setMessages((prev) => [...prev, msgObj]);
         setNewMessage("");
     };
 
@@ -84,10 +98,10 @@ const ChatScreen = () => {
                     <div
                         key={idx}
                         className={`px-4 py-2 rounded-2xl max-w-xs md:max-w-md mb-2 shadow
-                          ${msg.username === profile[0]?.fullname
-                              ? "bg-purple-500 text-white ml-auto"
-                              : "bg-white text-gray-800"
-                          }
+                          ${msg.sender === loggedInUSERid
+                                ? "bg-purple-500 text-white ml-auto"
+                                : "bg-white text-gray-800"
+                            }
                         `}
                     >
                         {msg.message}
