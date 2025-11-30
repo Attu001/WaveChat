@@ -33,9 +33,19 @@ const ChatScreen = () => {
     useEffect(() => {
         if (!id) return;
 
+        // const roomId = [loggedInUSERid, id].sort().join("_");
+        const protocol = window.location.protocol === "https:" ? "wss" : "ws";
+        const host = "wavechat-backend-j9xp.onrender.com"; // your Render backend
+
         const roomId = [loggedInUSERid, id].sort().join("_");
 
-        ws.current = new WebSocket(`ws://localhost:8000/ws/chat/room/${roomId}/`);
+        ws.current = new WebSocket(
+            `${protocol}://${host}/ws/chat/room/${roomId}/`
+        );
+
+
+
+        // ws.current = new WebSocket( `wss://wavechat-backend-j9xp.onrender.com/ws/chat/room/${roomId}/`);
 
         ws.current.onopen = () => console.log("WebSocket Connected");
 
