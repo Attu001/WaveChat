@@ -36,6 +36,8 @@ const Login = () => {
     const res = await loginUser(user.email, user.password);
 
     if (res.success) {
+      console.log("Login successful:", res);
+      localStorage.setItem("user", JSON.stringify(res.user.user_metadata));
      setSuccess(true);
      setTimeout(() => {
       navigate("/home")

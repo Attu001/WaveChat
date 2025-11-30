@@ -1,36 +1,71 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getSession } from "../supabase";
+import { getProfileByEmail, getSession } from "../supabase";
+import { FaRegCircleUser } from "react-icons/fa6";
 
 const Home = () => {
-    const navigate=useNavigate()
+    const navigate = useNavigate()
 
-
-    useEffect(()=>{
+    useEffect(() => {
         getSession().then((session) => {
             if (!session) {
                 navigate("/login");
             }
         });
-    },[])
+
+    }, [])
+
+     useEffect(() => {
+        const fetchProfile = async () => {
+          const user = JSON.parse(localStorage.getItem("user"));
+          if (!user) return;
+    
+          try {
+            const data = await getProfileByEmail(user.email);
+            localStorage.setItem("profile", JSON.stringify(data));
+            // console.log(data);
+          } catch (err) {
+            console.log("Error getting profile:", err);
+          }
+        };
+        fetchProfile();
+      }, []);
+
+    const user=JSON.parse(localStorage.getItem("profile"))
 
     
+
+    const firstname=user?.fullname
+    console.log(user);
+
+
+
     return (
         <div className="w-screen min-h-screen bg-gradient-to-br from-purple-500 via-pink-400 to-blue-400 flex flex-col items-center justify-start p-6 md:p-12">
 
             {/* Hero Section */}
             <div className="flex flex-col md:flex-row items-center justify-between w-full max-w-6xl mb-12">
 
+
                 {/* Text Content */}
                 <div className="md:w-1/2 text-center md:text-left mb-8 md:mb-0">
-                    <h1 className="text-4xl md:text-6xl font-extrabold text-white mb-4 drop-shadow-lg">
-                        Welcome to WaveChat
-                    </h1>
+                    <div className="flex items-center justify-center md:justify-start mb-4">
+                        <h1 className="text-4xl md:text-6xl font-extrabold text-white mb-4 drop-shadow-lg">
+                            Welcome to WaveChat
+                        </h1>
+                        
+                            <div className=" items-center flex p-4 h-max rounded-full flex-col " onClick={()=>navigate("/profile")}>
+                              <FaRegCircleUser className="w-20 h-20 " />
+                              {firstname}
+                            </div>
+                       
+                    </div>
+
                     <p className="text-white/90 text-lg md:text-xl mb-6">
                         The fastest and most secure chat application to stay connected with your friends and family. Share messages, images, and emojis in real time.
                     </p>
                     <div className="flex justify-center md:justify-start space-x-4">
-                        <button onClick={()=>navigate("/list")} className="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 shadow-lg">
+                        <button onClick={() => navigate("/list")} className="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 shadow-lg">
                             Start Chatting
                         </button>
                         <button className="bg-white/30 hover:bg-white/50 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 shadow-lg">

@@ -39,17 +39,18 @@ const getProfiles = async () => {
 };
 
 
-
-const getProfileByEmail = async (email) => {
+ const getProfileByEmail = async (email) => {
     const { data, error } = await supabase
         .from("user_profile")
         .select("*")
         .eq("email", email)
+        .single();   // if expecting only one profile
 
-    if (error) console.log(error);
+    if (error) throw error;
 
     return data;
 };
+
 
 const getProfileByUserId = async (id) => {
     const { data, error } = await supabase

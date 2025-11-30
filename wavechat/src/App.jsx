@@ -5,6 +5,7 @@ import Home from './pages/Home';
 import Signup from './pages/Signup';
 import ChatScreen from './pages/ChatScreen';
 import Profilelist from './pages/Profilelist';
+import Profile from './pages/Profile';
 
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
       <Route path="/signup" element={<Signup/>}/>
       <Route path="/chat-screen/:id" element={<ChatScreen/>}/>
       <Route path="/list" element={<Profilelist/>}/>  
+      <Route path="/profile" element={<Profile/> }/>
     </Routes>
     </>
   );
