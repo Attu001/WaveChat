@@ -39,12 +39,12 @@ const getProfiles = async () => {
 };
 
 
- const getProfileByEmail = async (email) => {
+const getProfileByEmail = async (email) => {
     const { data, error } = await supabase
         .from("user_profile")
         .select("*")
         .eq("email", email)
-        .single();   // if expecting only one profile
+        .maybeSingle();   // if expecting only one profile
 
     if (error) throw error;
 
@@ -57,10 +57,10 @@ const getProfileByUserId = async (id) => {
         .from("user_profile")
         .select("fullname")
         .eq("id", id)
-    if (error){
-        return
-        console.log(error)
-    } ;
+    if (error) {
+        console.log(error);
+        return null;
+    };
 
     return data;
 }
@@ -73,7 +73,7 @@ const handleSignup = async (user) => {
     console.log("Existing user:", existing);
 
 
-    if (existing && existing.length > 0)  {
+    if (existing) {
         return { success: false, message: "Email already registered!" };
     }
 
@@ -118,7 +118,7 @@ const getSession = async () => {
 
 
 
-export { getProfiles, getProfileByEmail, handleSignup , getSession,getProfileByUserId};
+export { getProfiles, getProfileByEmail, handleSignup, getSession, getProfileByUserId };
 
 
 
