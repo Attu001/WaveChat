@@ -21,6 +21,7 @@ const Home = () => {
         const fetchProfile = async () => {
             const user = JSON.parse(localStorage.getItem("user"));
             if (!user) return;
+            // if(profile) return;
 
             try {
                 const data = await getProfileByEmail(user.email);
@@ -36,8 +37,7 @@ const Home = () => {
         fetchProfile();
     }, []);
 
-
-    const user = JSON.parse(localStorage.getItem("profile"))
+    // const user = JSON.parse(localStorage.getItem("profile"))
     const firstname = profile?.fullname;
     // console.log(user);
 
@@ -57,7 +57,7 @@ const Home = () => {
                             Welcome to WaveChat
                         </h1>
 
-                        <div className=" items-center flex p-4 h-max rounded-full flex-col " onClick={() => navigate("/profile")}>
+                        <div className=" items-center flex px-3 h-max rounded-full flex-col text-nowrap   " onClick={() => navigate("/profile")}>
                             <FaRegCircleUser className="w-20 h-20 " />
                             {firstname}
                         </div>

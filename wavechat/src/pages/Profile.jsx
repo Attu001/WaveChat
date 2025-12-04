@@ -2,7 +2,7 @@ import React from "react";
 import { getProfileByEmail, getSession } from "../supabase";
 import { useEffect } from "react";
 import { IoMdArrowBack } from "react-icons/io";
-import {useNavigate} from "react-router";
+import { useNavigate } from "react-router";
 
 
 const Profile = () => {
@@ -48,67 +48,88 @@ const Profile = () => {
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-100 to-purple-200 flex items-center justify-center py-16 px-6">
-      <div className="absolute top-8 left-8 z-50" onClick={() => navigate("/home")}>
+    <div className="min-h-screen bg-gradient-to-br from-purple-500 via-indigo-600 to-blue-500 flex items-center justify-center py-14 px-6 relative overflow-hidden">
+
+
+
+      {/* BACKGROUND GLOW ELEMENTS */}
+      <div className="absolute top-10 right-20 w-56 h-56 bg-purple-400/30 blur-[90px] rounded-full"></div>
+      <div className="absolute bottom-20 left-24 w-72 h-72 bg-blue-400/30 blur-[100px] rounded-full"></div>
+
+      {/* CARD */}
+      <div className="bg-white/20 backdrop-blur-2xl border border-white/30 shadow-2xl rounded-3xl p-12 w-full max-w-3xl relative 
+                    transform hover:scale-[1.01] transition-all duration-500">
+        {/* BACK BUTTON */}
         <button
-          
-          className="mb-8 text-black text-xl hover:text-purple-800 font-semibold flex items-center gap-2 p-4"
-        ><IoMdArrowBack />
-
-           Back
+          onClick={() => navigate("/home")}
+          className="absolute top-8 left-8 z-50 flex items-center gap-2 px-5 py-2.5 
+                  bg-white/10 hover:bg-white/20 text-white backdrop-blur-lg 
+                  rounded-xl border border-white/20 transition-all duration-300 
+                  shadow-md hover:shadow-2xl hover:scale-105" 
+        >
+          <IoMdArrowBack className="text-2xl" />
+          <span className="font-medium">Back</span>
         </button>
-
-      </div>
-
-      <div className="bg-white/40 backdrop-blur-xl shadow-2xl rounded-3xl p-10 w-full max-w-3xl border border-white/30 relative">
-
-        {/* Floating Glow Effect */}
-        <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-40 h-40 bg-purple-500/30 blur-3xl rounded-full"></div>
 
         {/* PROFILE HEADER */}
         <div className="flex flex-col items-center relative">
 
+          {/* ANIMATED PROFILE RING */}
+          <div className="absolute -top-16 w-48 h-48 rounded-full bg-gradient-to-r from-purple-300 to-pink-300 blur-3xl opacity-40 animate-pulse"></div>
+
           {profile?.img_url ? (
-            <imgx
-              src={profile?.img_url}
+            <img
+              src={profile.img_url}
               alt="profile"
-              className="w-32 h-32 rounded-full shadow-lg border-4 border-white object-cover animate-[pulse_3s_infinite]"
+              className="w-36 h-36 rounded-full ring-4 ring-white shadow-xl object-cover 
+                      hover:scale-105 transition-all duration-300"
             />
           ) : (
-            <div className="w-32 h-32 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-6xl font-bold shadow-lg border-4 border-white">
+            <div className="w-36 h-36 rounded-full bg-gradient-to-br from-purple-600 to-indigo-600 
+                          flex items-center justify-center text-white text-6xl font-bold shadow-xl 
+                          ring-4 ring-white hover:scale-105 transition-all duration-300">
               {profile?.fullname ? profile.fullname.charAt(0).toUpperCase() : "A"}
             </div>
           )}
 
-
-          <h1 className="mt-6 text-4xl font-extrabold text-gray-900 tracking-wide drop-shadow-sm">
+          <h1 className="mt-6 text-4xl font-extrabold text-white tracking-wide drop-shadow-md">
             {profile?.fullname || "Anonymous"}
           </h1>
 
-          <p className="text-gray-600 text-sm mt-1">
+          <p className="text-white/80 text-sm mt-1 tracking-wide">
             {profile?.email}
           </p>
         </div>
 
-        {/* PERSONAL INFO */}
+        {/* DIVIDER */}
+        <div className="mt-10 h-[1px] w-full bg-white/30"></div>
+
+        {/* PERSONAL INFORMATION */}
         <div className="mt-10 space-y-6">
 
-          <div className="bg-white/70 backdrop-blur-2xl p-6 rounded-2xl shadow-md border border-gray-200 hover:shadow-xl transition-all duration-300">
-            <h2 className="text-gray-800 font-semibold text-xl border-b pb-2">Personal Information</h2>
+          <div className="bg-white/30 backdrop-blur-xl p-7 rounded-2xl shadow-lg border border-white/40 
+                        hover:shadow-2xl hover:bg-white/40 transition-all duration-300">
 
-            <div className="mt-4 space-y-3 text-gray-700 leading-relaxed">
-              <p><span className="font-semibold">Email:</span> {profile?.email}</p>
-              <p><span className="font-semibold">Phone:</span> {profile?.number || "Not available"}</p>
+            <h2 className="text-xl font-bold text-white tracking-wider border-b border-white/40 pb-3">
+              Personal Information
+            </h2>
+
+            <div className="mt-5 space-y-4 text-white/90 leading-relaxed">
               <p>
-                <span className="font-semibold">Date Joined:</span>{" "}
+                <span className="font-semibold text-white">Email:</span> {profile?.email}
+              </p>
+              <p>
+                <span className="font-semibold text-white">Phone:</span>{" "}
+                {profile?.number || "Not available"}
+              </p>
+              <p>
+                <span className="font-semibold text-white">Date Joined:</span>{" "}
                 {convertedDate ? convertedDate.toLocaleDateString() : "Not available"}
               </p>
             </div>
           </div>
 
-
         </div>
-
       </div>
     </div>
   );
