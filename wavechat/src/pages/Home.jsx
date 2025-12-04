@@ -5,6 +5,8 @@ import { FaRegCircleUser } from "react-icons/fa6";
 
 const Home = () => {
     const navigate = useNavigate()
+    const [profile, setProfile] = React.useState(null);
+
 
     useEffect(() => {
         getSession().then((session) => {
@@ -15,28 +17,29 @@ const Home = () => {
 
     }, [])
 
-     useEffect(() => {
+    useEffect(() => {
         const fetchProfile = async () => {
-          const user = JSON.parse(localStorage.getItem("user"));
-          if (!user) return;
-    
-          try {
-            const data = await getProfileByEmail(user.email);
-            localStorage.setItem("profile", JSON.stringify(data));
-            // console.log(data);
-          } catch (err) {
-            console.log("Error getting profile:", err);
-          }
+            const user = JSON.parse(localStorage.getItem("user"));
+            if (!user) return;
+
+            try {
+                const data = await getProfileByEmail(user.email);
+
+                if (data) {
+                    localStorage.setItem("profile", JSON.stringify(data));
+                    setProfile(data);
+                }
+            } catch (err) {
+                console.log("Error getting profile:", err);
+            }
         };
         fetchProfile();
-      }, []);
+    }, []);
 
-    const user=JSON.parse(localStorage.getItem("profile"))
 
-    
-
-    const firstname=user?.fullname
-    console.log(user);
+    const user = JSON.parse(localStorage.getItem("profile"))
+    const firstname = profile?.fullname;
+    // console.log(user);
 
 
 
@@ -53,12 +56,12 @@ const Home = () => {
                         <h1 className="text-4xl md:text-6xl font-extrabold text-white mb-4 drop-shadow-lg">
                             Welcome to WaveChat
                         </h1>
-                        
-                            <div className=" items-center flex p-4 h-max rounded-full flex-col " onClick={()=>navigate("/profile")}>
-                              <FaRegCircleUser className="w-20 h-20 " />
-                              {firstname}
-                            </div>
-                       
+
+                        <div className=" items-center flex p-4 h-max rounded-full flex-col " onClick={() => navigate("/profile")}>
+                            <FaRegCircleUser className="w-20 h-20 " />
+                            {firstname}
+                        </div>
+
                     </div>
 
                     <p className="text-white/90 text-lg md:text-xl mb-6">
