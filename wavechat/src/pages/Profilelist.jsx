@@ -7,6 +7,9 @@ import { getSession } from "../supabase";
 const Profilelist = () => {
   const navigate = useNavigate();
   const [profiles, setProfiles] = useState([]);
+  // console.log(JSON.parse(localStorage.getItem("user")));
+  
+
   const getallProfiles = async () => {
     const response = await getProfiles();
     return response;
@@ -74,7 +77,10 @@ const Profilelist = () => {
 
       {/* Chat List */}
       <div className="space-y-5">
-        {profiles.map((p, index) => (
+        {profiles
+        .filter(p => p.email !== JSON.parse(localStorage.getItem("user")).email)
+        .sort((a, b) => a - b)
+        .map((p, index) => (
           <div
             key={p.id}
             className="
