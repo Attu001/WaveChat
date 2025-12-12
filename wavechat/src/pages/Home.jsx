@@ -1,108 +1,128 @@
-import React, { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { getProfileByEmail, getSession } from "../supabase";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { getProfileByEmail } from "../supabase";
 import { FaRegCircleUser } from "react-icons/fa6";
+import axios from "axios";
+import { base_url,getProfileByUserId } from "../api";
 
 const Home = () => {
-    const navigate = useNavigate()
-    const [profile, setProfile] = React.useState(null);
+    const navigate = useNavigate();
+    const [searchParams] = useSearchParams()
+    const id = searchParams.get("id")
+    const token = searchParams.get("token")
+    const [profile, setProfile] = useState(null);
 
-
+    // -----------------------------
+    // EMAIL VERIFICATION
+    // -----------------------------
     useEffect(() => {
-        getSession().then((session) => {
-            if (!session) {
-                navigate("/login");
+        if (!token) return;
+
+        const verifyEmail = async () => {
+            try {
+                const res = await axios.get(`${base_url}verify-email/${id}/${token}/`);
+                console.log("Email Verified:", res.data);
+            } catch (e) {
+                console.log("Verification Error:", e);
             }
-        });
+        };
 
-    }, [])
+        verifyEmail();
+    }, [token, id]);
 
+    // -----------------------------
+    // FETCH PROFILE DATA
+    // -----------------------------
     useEffect(() => {
         const fetchProfile = async () => {
             const user = JSON.parse(localStorage.getItem("user"));
             if (!user) return;
-            // if(profile) return;
 
             try {
-                const data = await getProfileByEmail(user.email);
-
+                const data = await getProfileByUserId(id);
                 if (data) {
                     localStorage.setItem("profile", JSON.stringify(data));
                     setProfile(data);
                 }
             } catch (err) {
-                console.log("Error getting profile:", err);
+                console.log("Error:", err);
             }
         };
         fetchProfile();
     }, []);
 
-    // const user = JSON.parse(localStorage.getItem("profile"))
     const firstname = profile?.fullname;
-    // console.log(user);
-
-
 
     return (
-        <div className="w-screen min-h-screen bg-gradient-to-br from-purple-500 via-pink-400 to-blue-400 flex flex-col items-center justify-start p-6 md:p-12">
+        <div className="w-screen min-h-screen bg-gradient-to-br from-[#6a11cb] via-[#b83af3] to-[#2575fc] flex flex-col items-center p-6 md:p-10">
 
-            {/* Hero Section */}
-            <div className="flex flex-col md:flex-row items-center justify-between w-full max-w-6xl mb-12">
+            {/* Top User Box */}
+            <div
+                className="absolute top-6 right-6 flex items-center gap-3 bg-white/20 backdrop-blur-lg rounded-xl p-3 hover:bg-white/30 transition cursor-pointer shadow-lg"
+                onClick={() => navigate("/profile")}
+            >
+                <FaRegCircleUser className="w-10 h-10 text-white" />
+                <span className="text-white font-semibold">{firstname ?? "Profile"}</span>
+            </div>
 
+            {/* HERO SECTION */}
+            <div className="flex flex-col md:flex-row items-center justify-between w-full max-w-6xl mt-10 md:mt-16">
 
-                {/* Text Content */}
-                <div className="md:w-1/2 text-center md:text-left mb-8 md:mb-0">
-                    <div className="flex items-center justify-center md:justify-start mb-4">
-                        <h1 className="text-4xl md:text-6xl font-extrabold text-white mb-4 drop-shadow-lg">
-                            Welcome to WaveChat
-                        </h1>
+                {/* LEFT TEXT SIDE */}
+                <div className="md:w-1/2 text-center md:text-left space-y-6">
+                    <h1 className="text-5xl md:text-6xl font-extrabold text-white drop-shadow-lg animate-fade-in">
+                        Welcome to <span className="text-yellow-300">WaveChat</span>
+                    </h1>
 
-                        <div className=" items-center flex px-3 h-max rounded-full flex-col text-nowrap   " onClick={() => navigate("/profile")}>
-                            <FaRegCircleUser className="w-20 h-20 " />
-                            {firstname}
-                        </div>
-
-                    </div>
-
-                    <p className="text-white/90 text-lg md:text-xl mb-6">
-                        The fastest and most secure chat application to stay connected with your friends and family. Share messages, images, and emojis in real time.
+                    <p className="text-white/90 text-lg md:text-xl">
+                        A modern, fast, and secure way to stay connected.  
+                        Chat in real-time with beautiful UI and smooth experience.
                     </p>
-                    <div className="flex justify-center md:justify-start space-x-4">
-                        <button onClick={() => navigate("/list")} className="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 shadow-lg">
+
+                    <div className="flex justify-center md:justify-start gap-4 mt-4">
+                        <button
+                            onClick={() => navigate("/list")}
+                            className="bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-6 py-3 rounded-xl shadow-lg transition transform hover:scale-105"
+                        >
                             Start Chatting
                         </button>
-                        <button className="bg-white/30 hover:bg-white/50 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 shadow-lg">
+
+                        <button className="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-xl font-semibold shadow-lg transition transform hover:scale-105">
                             Learn More
                         </button>
                     </div>
                 </div>
 
-                {/* Hero Image */}
-                <div className="md:w-1/2 flex justify-center">
-                    <div className="w-72 h-72 md:w-96 md:h-96 bg-white/20 rounded-3xl shadow-2xl flex items-center justify-center overflow-hidden transform hover:scale-105 transition-transform duration-500">
+                {/* RIGHT IMAGE SIDE */}
+                <div className="md:w-1/2 flex justify-center mt-10 md:mt-0">
+                    <div className="w-72 h-72 md:w-96 md:h-96 bg-white/20 backdrop-blur-lg rounded-3xl shadow-xl overflow-hidden flex items-center justify-center transition transform hover:scale-105">
                         <img
                             src="https://srbpwyxjbrbxzlerdust.supabase.co/storage/v1/object/public/portfolio-images/3Dmodels/7495-removebg-preview.png"
-                            alt="3D model"
+                            alt="Hero 3D Model"
                             className="w-full h-full object-cover"
                         />
                     </div>
                 </div>
             </div>
 
-            {/* Features Section */}
-            <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div className="bg-white/20 backdrop-blur-md rounded-2xl p-6 flex flex-col items-center text-center shadow-lg hover:scale-105 transition-transform duration-300">
-                    <h3 className="text-xl font-bold text-white mb-2">Fast Messaging</h3>
-                    <p className="text-white/80">Send and receive messages instantly with zero delay.</p>
+            {/* FEATURES */}
+            <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
+                
+                <div className="bg-white/20 backdrop-blur-xl p-6 rounded-2xl text-center shadow-lg hover:scale-105 transition">
+                    <h3 className="text-xl font-bold text-white mb-2">⚡ Fast Messaging</h3>
+                    <p className="text-white/80">Instant delivery with ultra low latency.</p>
                 </div>
-                <div className="bg-white/20 backdrop-blur-md rounded-2xl p-6 flex flex-col items-center text-center shadow-lg hover:scale-105 transition-transform duration-300">
-                    <h3 className="text-xl font-bold text-white mb-2">Secure</h3>
-                    <p className="text-white/80">Your conversations are protected with end-to-end encryption.</p>
+
+                <div className="bg-white/20 backdrop-blur-xl p-6 rounded-2xl text-center shadow-lg hover:scale-105 transition">
+                    <h3 className="text-xl font-bold text-white mb-2">🔐 Secure</h3>
+                    <p className="text-white/80">Your conversations stay private.</p>
                 </div>
-                <div className="bg-white/20 backdrop-blur-md rounded-2xl p-6 flex flex-col items-center text-center shadow-lg hover:scale-105 transition-transform duration-300">
-                    <h3 className="text-xl font-bold text-white mb-2">(Incoming)3D Experience</h3>
-                    <p className="text-white/80">Enjoy immersive 3D visuals while chatting and sharing media.</p>
+
+                <div className="bg-white/20 backdrop-blur-xl p-6 rounded-2xl text-center shadow-lg hover:scale-105 transition">
+                    <h3 className="text-xl font-bold text-white mb-2">🌀 3D Experience</h3>
+                    <p className="text-white/80 flex gap-2"><div className="animate-bounce"> (Coming Soon)</div> Interact with 3D visuals.</p>
                 </div>
+
             </div>
         </div>
     );

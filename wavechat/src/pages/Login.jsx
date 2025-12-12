@@ -2,9 +2,10 @@ import React, { useEffect } from "react";
 import { Link, useNavigate} from "react-router-dom";
 import axios from "axios"
 import {useState} from "react";
-import { loginUser } from "../supabase";
+// import { loginUser } from "../supabase";
 import Success from "../components/Success";
 import Error from "../components/Error";
+import { loginUser } from "../api";
 
 
 const Login = () => {
@@ -34,19 +35,20 @@ const Login = () => {
     
   const handleLogin = async () => {
     const res = await loginUser(user.email, user.password);
+    console.log(res)
 
-    if (res.success) {
-      console.log("Login successful:", res);
-      localStorage.setItem("user", JSON.stringify(res.user.user_metadata));
-     setSuccess(true);
-     setTimeout(() => {
-      navigate("/home")
-     }, 3000);
-    } 
-    else {
-      setShowError(true);
+    // if (res) {
+    //   console.log("Login successful:", res);
+    //   localStorage.setItem("user", JSON.stringify(res));
+    //  setSuccess(true);
+    //  setTimeout(() => {
+    //   navigate("/home")
+    //  }, 3000);
+    // } 
+    // else {
+    //   setShowError(true);
 
-    }
+    // }
   };
 
        

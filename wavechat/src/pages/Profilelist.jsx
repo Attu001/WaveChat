@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { getProfiles } from "../supabase";
 import { useNavigate } from "react-router-dom";
 import { getSession } from "../supabase";
+import axios from "axios";
+import { allUsers } from "../api";
 
 
 const Profilelist = () => {
@@ -15,13 +17,6 @@ const Profilelist = () => {
     return response;
   };
 
-  useEffect(() => {
-    const fetchProfiles = async () => {
-      const profilesData = await getallProfiles();
-      setProfiles(profilesData);
-    };
-    fetchProfiles();
-  }, []);
 
   const timeConverter = (timestamp) => {
     const date = new Date(timestamp);
@@ -35,15 +30,29 @@ const Profilelist = () => {
     navigate("/login");
   };
 
-   useEffect(()=>{
-          getSession().then((session) => {
-              if (!session) {
-                  navigate("/login");
-              }
-          });
-      },[])
+  useEffect(() => {
+    getSession().then((session) => {
+      if (!session) {
+        navigate("/login");
+      }
+    });
+  }, [])
 
-  
+  useEffect(() => {
+    const fetchUsers = async () => {
+     try{
+        const users= await allUsers()
+        // console.log(users)
+        setProfiles(users)
+      }catch(e){
+      console.log(e)
+     }
+    };
+
+    fetchUsers();
+  }, [timeConverter]);
+
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#ffd1ff] via-[#ffe4f3] to-[#d3faff] p-8 relative overflow-hidden">
@@ -78,56 +87,55 @@ const Profilelist = () => {
       {/* Chat List */}
       <div className="space-y-5">
         {profiles
-        .filter(p => p.email !== JSON.parse(localStorage.getItem("user")).email)
-        .sort((a, b) => a - b)
-        .map((p, index) => (
-          <div
-            key={p.id}
-            className="
+          .filter(p => p.email !== JSON.parse(localStorage.getItem("user")).email)
+          .sort((a, b) => a - b)
+          .map((p, index) => (
+            <div
+              key={p.id}
+              className="
               group flex items-center gap-5 p-5 rounded-3xl 
               bg-white/50 backdrop-blur-xl border border-white/30
               shadow-lg cursor-pointer
               hover:shadow-2xl hover:scale-[1.02]
               transition-all duration-300
             "
-            onClick={() => navigate(`/chat-screen/${p?.id}`)}
-            style={{ animationDelay: `${index * 0.15}s` }}
-          >
-            {/* Avatar */}
-            <div className="relative">
-              <div className="
+              onClick={() => navigate(`/chat-screen/${p?.id}`)}
+              style={{ animationDelay: `${index * 0.15}s` }}
+            >
+              {/* Avatar */}
+              <div className="relative">
+                <div className="
                 w-16 h-16 rounded-2xl 
                 bg-gradient-to-br from-purple-500 to-blue-500 
                 flex items-center justify-center text-xl font-bold text-white shadow-md
                 group-hover:rotate-6 transition-all 
               ">
-                {p.fullname.charAt(0).toUpperCase()}
+                  {p.name.charAt(0).toUpperCase()}
+                </div>
+
+                {/* Online Dot */}
+                <span
+                  className={`absolute bottom-1 right-1 w-4 h-4 rounded-full ${p.online ? "bg-green-400" : "bg-gray-400"
+                    } border-2 border-white`}
+                ></span>
               </div>
 
-              {/* Online Dot */}
-              <span
-                className={`absolute bottom-1 right-1 w-4 h-4 rounded-full ${
-                  p.online ? "bg-green-400" : "bg-gray-400"
-                } border-2 border-white`}
-              ></span>
-            </div>
+              {/* User Text */}
+              <div className="flex-1">
+                <p className="text-black font-semibold text-lg">
+                  {p.name}
+                </p>
+                <p className="text-gray-700 text-sm opacity-80">
+                  Joined: {timeConverter(p?.created_at)}
+                </p>
+              </div>
 
-            {/* User Text */}
-            <div className="flex-1">
-              <p className="text-black font-semibold text-lg">
-                {p.fullname}
-              </p>
-              <p className="text-gray-700 text-sm opacity-80">
-                Joined: {timeConverter(p.created_at)}
+              {/* Time */}
+              <p className="text-gray-900 text-xs font-medium">
+                {p.time}
               </p>
             </div>
-
-            {/* Time */}
-            <p className="text-gray-900 text-xs font-medium">
-              {p.time}
-            </p>
-          </div>
-        ))}
+          ))}
       </div>
     </div>
   );
