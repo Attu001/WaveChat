@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { IoIosArrowBack } from "react-icons/io";
-import { getProfileByUserId } from "../supabase";
+// import { getProfileByUserId } from "../supabase";
 import { useParams, useNavigate } from "react-router-dom";
+import { getProfileByUserId } from "../api";
 
 const ChatScreen = () => {
     const navigate = useNavigate();
@@ -12,20 +13,38 @@ const ChatScreen = () => {
     const [newMessage, setNewMessage] = useState("");
     const ws = useRef(null);
     const messagesEndRef = useRef(null);
-
+    // console.log(profile)
     const user = JSON.parse(localStorage.getItem("profile"));
     // console.log(user);
-    const loggedInUSERid = user.id
-    // console.log(loggedInUSERid);
+
+    const loggedInUserId = user.id
+    console.log(loggedInUserId)
+    if (!loggedInUserId) {
+        navigate("/login")
+
+    }
+    // console.log(loggedInUserId);
+
+    // // Load Profile
+    // useEffect(() => {
+    //     const fetchProfile = async () => {
+    //         const data = await getProfileByUserId(id);
+    //         setProfile(data);
+    //     };
+    //     fetchProfile();
+    // }, [id]);
+
 
     // Load Profile
     useEffect(() => {
         const fetchProfile = async () => {
             const data = await getProfileByUserId(id);
+            // console.log(data)
             setProfile(data);
         };
         fetchProfile();
     }, [id]);
+
 
     // console.log(id)
 
@@ -33,12 +52,10 @@ const ChatScreen = () => {
     useEffect(() => {
         if (!id) return;
 
-        // const roomId = [loggedInUSERid, id].sort().join("_");
-        const protocol = window.location.protocol === "https:" ? "wss" : "ws";
+        // const roomId = [loggedInUserId, id].sort().join("_");
+        const protocol = "wss";
         const host = "wavechat-backend-j9xp.onrender.com"; // your Render backend
-
-        const roomId = [loggedInUSERid, id].sort().join("_");
-
+        const roomId = [loggedInUserId, id].sort().join("_");
         ws.current = new WebSocket(
             `${protocol}://${host}/ws/chat/room/${roomId}/`
         );
@@ -53,7 +70,7 @@ const ChatScreen = () => {
             const data = JSON.parse(event.data);
 
             // Prevent duplicate messages
-            if (data.sender === loggedInUSERid) return;
+            if (data.sender === loggedInUserId) return;
 
             setMessages((prev) => [...prev, data]);
         };
@@ -72,7 +89,7 @@ const ChatScreen = () => {
 
         const msgObj = {
             message: newMessage,
-            sender: loggedInUSERid,
+            sender: loggedInUserId,
             receiver: id
         };
 
@@ -98,9 +115,9 @@ const ChatScreen = () => {
                     onClick={() => navigate(`/list`)}
                 />
                 <div className="ml-3 w-10 h-10 rounded-full bg-purple-500 text-white flex items-center justify-center">
-                    {profile[0]?.fullname?.charAt(0)}
+                    {profile?.name?.charAt(0).toUpperCase()}
                 </div>
-                <span className="ml-3 font-semibold">{profile[0]?.fullname}</span>
+                <span className="ml-3 font-semibold">{profile?.name}</span>
             </div>
 
             <div className="flex-1 overflow-y-auto p-4">
@@ -108,7 +125,7 @@ const ChatScreen = () => {
                     <div
                         key={idx}
                         className={`px-4 py-2 rounded-2xl max-w-xs md:max-w-md mb-2 shadow
-                          ${msg.sender === loggedInUSERid
+                          ${msg.sender === loggedInUserId
                                 ? "bg-purple-500 text-white ml-auto"
                                 : "bg-white text-gray-800"
                             }

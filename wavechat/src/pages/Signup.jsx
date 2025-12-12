@@ -7,6 +7,7 @@ import { setError } from "../slices/errorSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { setSuccess } from "../slices/successSlice";
 import Success from "../components/Success";
+import { registerUser } from "../api";
 
 
 const Signup = () => {
@@ -19,10 +20,12 @@ const Signup = () => {
 
 
   const [user, setUser] = useState({
-    fullname: "",
+    name: "",
     email: "",
     password: "",
   });
+
+  console.log(user);
 
   const handleChange = (e) => {
     setUser({
@@ -34,8 +37,9 @@ const Signup = () => {
   const onSignup = async () => {
     setLoader(true);
 
+
     // EMPTY FIELDS
-    if (user.fullname.trim() === "" || user.email.trim() === "" || user.password.trim() === "") {
+    if (user.name.trim() === "" || user.email.trim() === "" || user.password.trim() === "") {
       setErrorForm(false);
       dispatch(setError("All fields are required!"));
 
@@ -47,25 +51,36 @@ const Signup = () => {
       return;
     }
 
-    const response = await handleSignup(user);
-    setLoader(false);
+    try {
+      const response = await registerUser(user.name, user.email,user.password);
+      setLoader(false);
+      console.log(response)
+      return response;
+    } catch (e) {
 
-    // FAILURE CASE
-    if (response.success == false) {
+      // console.log(e.response.data.email[0])
+      setLoader(false)
       setErrorForm(false);
-      dispatch(setError(response.message));
+      let errMsg = "Something went wrong";
+
+      if (e?.response?.data?.error) {
+        errMsg = e.response.data.error;
+      } else if (e?.response?.data?.email?.[0]) {
+        errMsg = e.response.data.email[0];
+      }
+
+      dispatch(setError(errMsg));
+      setLoader(false)
 
       setTimeout(() => {
         setErrorForm(true);
       }, 20);
 
-      return;
     }
 
     // SUCCESS CASE
     setErrorForm(false);
     dispatch(setSuccess("Signup successful! Verify your email."));
-
     setTimeout(() => {
       setErrorForm(true);
     }, 20);
@@ -76,7 +91,7 @@ const Signup = () => {
     <div className="w-screen h-screen bg-gradient-to-br from-purple-500 via-pink-400 to-blue-400 flex items-center justify-center p-4">
       {errorForm && <Error message={message} />}
       {loader && <Loading />}
-      {successMessage && <Success message={successMessage}  />}
+      {successMessage && <Success message={successMessage} />}
 
       <div className="bg-white/20 backdrop-blur-2xl rounded-3xl shadow-2xl flex flex-col md:flex-row w-full max-w-5xl h-auto md:h-4/5 overflow-hidden border border-white/30">
 
@@ -93,10 +108,10 @@ const Signup = () => {
           {/* FULL NAME */}
           <input
             type="text"
-            name="fullname"
+            name="name"
             placeholder="Full Name"
             onChange={handleChange}
-            value={user.fullname}
+            value={user.name}
             className="mb-4 p-4 rounded-xl border border-white/40 bg-white/20 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2 backdrop-blur-sm transition-all duration-300 w-full"
           />
 
