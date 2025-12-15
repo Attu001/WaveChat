@@ -31,11 +31,11 @@ const Profilelist = () => {
   };
 
   useEffect(() => {
-    getSession().then((session) => {
-      if (!session) {
-        navigate("/login");
-      }
-    });
+   const access=localStorage.getItem("access")
+   if(!access){
+    navigate("/login")
+   }
+
   }, [])
 
   useEffect(() => {
@@ -86,10 +86,10 @@ const Profilelist = () => {
 
       {/* Chat List */}
       <div className="space-y-5">
-        {profiles
-          .filter(p => p.email !== JSON.parse(localStorage.getItem("user")).email)
-          .sort((a, b) => a - b)
-          .map((p, index) => (
+        {profiles && 
+          // .filter(p => p.email !== JSON.parse(localStorage.getItem("user")).email)
+          // .sort((a, b) => a - b)
+          profiles?.map((p, index) => (
             <div
               key={p.id}
               className="

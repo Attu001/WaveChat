@@ -10,8 +10,8 @@ const Profile = () => {
   const navigate = useNavigate();
   useEffect(() => {
     const fetchProfile = async () => {
-      const user = JSON.parse(localStorage.getItem("user"));
-      if (!user) return;
+      const access = JSON.parse(localStorage.getItem("access"));
+      if (!access) return;
 
       try {
         const data = await getProfileByEmail(user.email);
@@ -24,26 +24,27 @@ const Profile = () => {
     fetchProfile();
   }, []);
 
-  const getSessionData = async () => {
-    try {
-      const session = await getSession();
-      if (session) {
-        localStorage.setItem("session", JSON.stringify(session));
-      } else {
-        navigate("/login");
-      }
-    } catch (err) {
-      console.log("Error getting session:", err);
-    }
-  };
+  // const getSessionData = async () => {
+  //   try {
+  //     const session = await getSession();
+  //     if (session) {
+  //       localStorage.setItem("session", JSON.stringify(session));
+  //     } else {
+  //       navigate("/login");
+  //     }
+  //   } catch (err) {
+  //     console.log("Error getting session:", err);
+  //   }
+  // };
 
-  useEffect(() => {
-    getSessionData();
-  }, []);
+  // useEffect(() => {
+  //   getSessionData();
+  // }, []);
 
   const profile = JSON.parse(localStorage?.getItem("profile"))
   console.log(localStorage.getItem("profile"));
   const convertedDate = profile?.created_at ? new Date(profile.created_at) : null;
+  console.log(localStorage)
 
 
 
