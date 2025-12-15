@@ -5,14 +5,13 @@ const VerifyUser = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  const id = searchParams.get("id");
   const token = searchParams.get("token");
 
   const [status, setStatus] = useState("verifying"); 
   // verifying | success | error
 
   useEffect(() => {
-    if (!id || !token) {
+    if (!token) {
       setStatus("error");
       return;
     }
@@ -20,7 +19,7 @@ const VerifyUser = () => {
     const verifyUser = async () => {
       try {
         const response = await fetch(
-          `http://127.0.0.1:8000/verify-email/${id}/${token}/`
+          `http://localhost:8000/auth/verify?token=${token}`
         );
 
         const data = await response.json();
@@ -41,7 +40,7 @@ const VerifyUser = () => {
     };
 
     verifyUser();
-  }, [id, token, navigate]);
+  }, [ token, navigate]);
 
   return (
     <div className="flex items-center  justify-center min-h-screen bg-gradient-to-r from-indigo-500 to-purple-500">

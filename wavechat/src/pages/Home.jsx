@@ -120,7 +120,7 @@ const Home = () => {
 
                 <div className="bg-white/20 backdrop-blur-xl p-6 rounded-2xl text-center shadow-lg hover:scale-105 transition">
                     <h3 className="text-xl font-bold text-white mb-2">🌀 3D Experience</h3>
-                    <p className="text-white/80 flex gap-2"><div className="animate-bounce"> (Coming Soon)</div> Interact with 3D visuals.</p>
+                   <div className="text-white/80 flex gap-2 animate-bounce"> (Coming Soon)</div> Interact with 3D visuals.
                 </div>
 
             </div>
