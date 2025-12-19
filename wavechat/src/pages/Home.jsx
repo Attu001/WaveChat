@@ -3,7 +3,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { getProfileByEmail } from "../supabase";
 import { FaRegCircleUser } from "react-icons/fa6";
 import axios from "axios";
-import { base_url,getProfileByUserId } from "../api";
+import { base_url} from "../api";
 
 const Home = () => {
     const navigate = useNavigate();
@@ -33,23 +33,23 @@ const Home = () => {
     // -----------------------------
     // FETCH PROFILE DATA
     // -----------------------------
-    useEffect(() => {
-        const fetchProfile = async () => {
-            const user = JSON.parse(localStorage.getItem("user"));
-            if (!user) return;
+    // useEffect(() => {
+    //     const fetchProfile = async () => {
+    //         const user = JSON.parse(localStorage.getItem("user"));
+    //         if (!user) return;
 
-            try {
-                const data = await getProfileByUserId(id);
-                if (data) {
-                    localStorage.setItem("profile", JSON.stringify(data));
-                    setProfile(data);
-                }
-            } catch (err) {
-                console.log("Error:", err);
-            }
-        };
-        fetchProfile();
-    }, []);
+    //         try {
+    //             const data = await getProfileByUserId(id);
+    //             if (data) {
+    //                 localStorage.setItem("profile", JSON.stringify(data));
+    //                 setProfile(data);
+    //             }
+    //         } catch (err) {
+    //             console.log("Error:", err);
+    //         }
+    //     };
+    //     fetchProfile();
+    // }, []);
 
     const firstname = profile?.fullname;
 

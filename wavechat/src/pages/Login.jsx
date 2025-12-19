@@ -9,9 +9,7 @@ import Loading from "../components/Loading";
 
 const Login = () => {
   const [activePopup,setActivePopup] = useState(null)
-  const [loader,setLoader] = useState(false)
-  const [success, setSuccess] = useState(false)
-  const [showError, setShowError] = useState(false)
+
   
 
   useEffect(() => {
@@ -41,6 +39,7 @@ const handleLogin = async () => {
 
     if (res?.access) {
       localStorage.setItem("access", res.access);
+      localStorage.setItem("id",res.user_id)
       setActivePopup("success");
 
       setTimeout(() => {

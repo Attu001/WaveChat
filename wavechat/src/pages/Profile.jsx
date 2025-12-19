@@ -1,50 +1,33 @@
-import React from "react";
-import { getProfileByEmail, getSession } from "../supabase";
+import React, { useState } from "react";
+// import { getProfileByEmail, getSession } from "../supabase";
 import { useEffect } from "react";
 import { IoMdArrowBack } from "react-icons/io";
 import { useNavigate } from "react-router";
-
+import {getProfileByUserId} from '../api'
 
 const Profile = () => {
 
+  const [profile,setProfile]=useState()
+
   const navigate = useNavigate();
+
   useEffect(() => {
     const fetchProfile = async () => {
-      const access = JSON.parse(localStorage.getItem("access"));
+      const access = localStorage.getItem("access")
       if (!access) return;
 
       try {
-        const data = await getProfileByEmail(user.email);
-        localStorage.setItem("profile", JSON.stringify(data));
-        // console.log(data);
+        const id=localStorage.getItem("id")
+        const data = await getProfileByUserId(id);
+        setProfile(data)
+        localStorage.setItem("User_id", data.id);
       } catch (err) {
         console.log("Error getting profile:", err);
       }
     };
     fetchProfile();
-  }, []);
+  },[]);
 
-  // const getSessionData = async () => {
-  //   try {
-  //     const session = await getSession();
-  //     if (session) {
-  //       localStorage.setItem("session", JSON.stringify(session));
-  //     } else {
-  //       navigate("/login");
-  //     }
-  //   } catch (err) {
-  //     console.log("Error getting session:", err);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   getSessionData();
-  // }, []);
-
-  const profile = JSON.parse(localStorage?.getItem("profile"))
-  console.log(localStorage.getItem("profile"));
-  const convertedDate = profile?.created_at ? new Date(profile.created_at) : null;
-  console.log(localStorage)
 
 
 
@@ -89,12 +72,12 @@ const Profile = () => {
             <div className="w-36 h-36 rounded-full bg-gradient-to-br from-purple-600 to-indigo-600 
                           flex items-center justify-center text-white text-6xl font-bold shadow-xl 
                           ring-4 ring-white hover:scale-105 transition-all duration-300">
-              {profile?.fullname ? profile.fullname.charAt(0).toUpperCase() : "A"}
+              {profile?.name ? profile.name[0].toUpperCase():"a"}
             </div>
           )}
 
-          <h1 className="mt-6 text-4xl font-extrabold text-white tracking-wide drop-shadow-md">
-            {profile?.fullname || "Anonymous"}
+          <h1 className="mt-6 text-4xl font-extrabold text-white tracking-wide drop-shadow-md capitalize">
+            {profile?.name || "Anonymous"}
           </h1>
 
           <p className="text-white/80 text-sm mt-1 tracking-wide">
@@ -112,11 +95,11 @@ const Profile = () => {
                         hover:shadow-2xl hover:bg-white/40 transition-all duration-300">
 
             <h2 className="text-xl font-bold text-white tracking-wider border-b border-white/40 pb-3">
-              Personal Information
+              {/* Personal Information */}
             </h2>
 
             <div className="mt-5 space-y-4 text-white/90 leading-relaxed">
-              <p>
+              <p> 
                 <span className="font-semibold text-white">Email:</span> {profile?.email}
               </p>
               <p>
@@ -125,7 +108,7 @@ const Profile = () => {
               </p>
               <p>
                 <span className="font-semibold text-white">Date Joined:</span>{" "}
-                {convertedDate ? convertedDate.toLocaleDateString() : "Not available"}
+                {/* {convertedDate ? convertedDate.toLocaleDateString() : "Not available"} */}
               </p>
             </div>
           </div>
