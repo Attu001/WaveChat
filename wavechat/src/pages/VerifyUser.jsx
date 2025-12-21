@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const VerifyUser = () => {
   const [searchParams] = useSearchParams();
@@ -7,7 +8,7 @@ const VerifyUser = () => {
 
   const token = searchParams.get("token");
 
-  const [status, setStatus] = useState("verifying"); 
+  const [status, setStatus] = useState("verifying");
   // verifying | success | error
 
   useEffect(() => {
@@ -22,9 +23,14 @@ const VerifyUser = () => {
           `http://localhost:8000/auth/verify?token=${token}`
         );
 
+
+
         const data = await response.json();
 
         if (response.ok) {
+          localStorage.setItem("access", token)
+          localStorage.setItem("id", res.user_id)
+
           setStatus("success");
 
           // Redirect after 2 seconds
@@ -40,7 +46,7 @@ const VerifyUser = () => {
     };
 
     verifyUser();
-  }, [ token, navigate]);
+  }, [token, navigate]);
 
   return (
     <div className="flex items-center  justify-center min-h-screen bg-gradient-to-r from-indigo-500 to-purple-500">
@@ -66,6 +72,12 @@ const VerifyUser = () => {
             <div className="text-red-500 text-5xl mb-4">✖</div>
             <h2 className="text-xl font-semibold">Verification Failed</h2>
             <p className="text-gray-600 mt-2">Invalid or expired link.</p>
+            <Link
+              to="/login"
+              className="text-blue-600 font-medium hover:underline"
+            >
+              Login
+            </Link>
           </>
         )}
       </div>

@@ -2,16 +2,15 @@ import React, { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios"
 import { useState } from "react";
-// import { loginUser } from "../supabase";
 import Success from "../components/Success";
 import Error from "../components/Error";
 import { loginUser } from "../api";
-
+import Loading from "../components/Loading";
 
 const Login = () => {
+  const [activePopup,setActivePopup] = useState(null)
 
-  const [success, setSuccess] = useState(false)
-  const [showError, setShowError] = useState(false)
+  
 
   useEffect(() => {
     localStorage.clear();
@@ -25,45 +24,50 @@ const Login = () => {
   })
 
   const handleChange = (e) => {
-    e.preventDefault()
-    setUser({
+        setUser({
       ...user,
       [e.target.name]: e.target.value
     });
   }
 
 
-  const handleLogin = async () => {
+const handleLogin = async () => {
+  try {
+    setActivePopup("loader");
+
     const res = await loginUser(user.email, user.password);
-    console.log(res)
 
+    if (res?.access) {
+      localStorage.setItem("access", res.access);
+      localStorage.setItem("id",res.user_id)
+      setActivePopup("success");
 
-
-    if (res) {
-      console.log("Login successful:", res);
-      localStorage.setItem("access", res.access)
-      setSuccess(true);
       setTimeout(() => {
-        navigate("/home")
+        navigate("/home");
       }, 3000);
+    } else {
+      setActivePopup("error");
     }
-    else {
-      setShowError(true);
+  } catch (err) {
+    console.error(err);
+    setActivePopup("error");
+  }
+};
 
-    }
-  };
 
 
 
 
   return (
     <div className="w-screen h-screen bg-gradient-to-br from-purple-500 via-pink-400 to-blue-400 flex items-center justify-center p-4">
-
       {
-        success && <Success message="Login Successful! Redirecting..." />
+        activePopup=="loader" && <Loading/>
       }
       {
-        showError && <Error message="Invalid email or password." />
+        activePopup=="success" && <Success message="Login Successful! Redirecting..." />
+      }
+      {
+        activePopup=="error" && <Error message="Invalid email or password." />
       }
 
       {/* Glassmorphic Container */}
@@ -90,6 +94,7 @@ const Login = () => {
           <input
             name="password"
             placeholder="password"
+            type="password"
             value={user.password}
             onChange={(e) => handleChange(e)}
             className="mb-6 p-4 rounded-xl border border-white/40 bg-white/20 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2 backdrop-blur-sm transition-all duration-300 w-full"

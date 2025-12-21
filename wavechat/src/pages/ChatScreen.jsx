@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import { IoIosArrowBack } from "react-icons/io";
-// import { getProfileByUserId } from "../supabase";
 import { useParams, useNavigate } from "react-router-dom";
 import { getProfileByUserId } from "../api";
 
@@ -13,9 +12,7 @@ const ChatScreen = () => {
     const [newMessage, setNewMessage] = useState("");
     const ws = useRef(null);
     const messagesEndRef = useRef(null);
-    // console.log(profile)
     const user = JSON.parse(localStorage.getItem("profile"));
-    // console.log(user);
 
     const loggedInUserId = user.id
     console.log(loggedInUserId)
@@ -35,15 +32,15 @@ const ChatScreen = () => {
     // }, [id]);
 
 
-    // Load Profile
-    useEffect(() => {
-        const fetchProfile = async () => {
-            const data = await getProfileByUserId(id);
-            // console.log(data)
-            setProfile(data);
-        };
-        fetchProfile();
-    }, [id]);
+    // // Load Profile
+    // useEffect(() => {
+    //     const fetchProfile = async () => {
+    //         const data = await getProfileByUserId(id);
+    //         // console.log(data)
+    //         setProfile(data);
+    //     };
+    //     fetchProfile();
+    // }, [id]);
 
 
     // console.log(id)

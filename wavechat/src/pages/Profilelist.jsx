@@ -10,7 +10,7 @@ const Profilelist = () => {
   const navigate = useNavigate();
   const [profiles, setProfiles] = useState([]);
   // console.log(JSON.parse(localStorage.getItem("user")));
-  
+
 
   const getallProfiles = async () => {
     const response = await getProfiles();
@@ -42,7 +42,6 @@ const Profilelist = () => {
     const fetchUsers = async () => {
      try{
         const users= await allUsers()
-        // console.log(users)
         setProfiles(users)
       }catch(e){
       console.log(e)
@@ -50,7 +49,7 @@ const Profilelist = () => {
     };
 
     fetchUsers();
-  }, [timeConverter]);
+  }, []);
 
 
 
@@ -125,9 +124,7 @@ const Profilelist = () => {
                 <p className="text-black font-semibold text-lg">
                   {p.name}
                 </p>
-                <p className="text-gray-700 text-sm opacity-80">
-                  Joined: {timeConverter(p?.created_at)}
-                </p>
+              
               </div>
 
               {/* Time */}
