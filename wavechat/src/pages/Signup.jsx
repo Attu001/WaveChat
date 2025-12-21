@@ -25,8 +25,6 @@ const Signup = () => {
     password: "",
   });
 
-  console.log(user);
-
   const handleChange = (e) => {
     setUser({
       ...user,
@@ -49,53 +47,55 @@ const Signup = () => {
 
       setLoader(false);
       return;
-    }
+    }else{
 
-    try {
-      const response = await registerUser(user.name, user.email,user.password);
-      setLoader(false);
-      console.log(response)
-      return response;
-    } catch (e) {
-
-      // console.log(e.response.data.email[0])
-      setLoader(false)
-      setErrorForm(false);
-      let errMsg = "Something went wrong";
-
-      if (e?.response?.data?.error) {
-        errMsg = e.response.data.error;
-      } else if (e?.response?.data?.email?.[0]) {
-        errMsg = e.response.data.email[0];
+      
+      try {
+        const response = await registerUser(user.name, user.email, user.password);
+        setLoader(false);
+        console.log(response)
+        return response;
+      } catch (e) {
+        
+        console.log(e)
+        setLoader(false)
+        setErrorForm(false);
+        let errMsg = "Something went wrong";
+        
+        if (e?.response?.data?.error) {
+          errMsg = e.response.data.error;
+        } else if (e?.response?.data?.email?.[0]) {
+          errMsg = e.response.data.email[0];
+        }
+        
+        dispatch(setError(errMsg));
+        setLoader(false)
+        
+        setTimeout(() => {
+          setErrorForm(true);
+        }, 20);
+        
       }
-
-      dispatch(setError(errMsg));
-      setLoader(false)
-
+      
+      // SUCCESS CASE
+      setErrorForm(false);
+      dispatch(setSuccess("Signup successful! Verify your email."));
       setTimeout(() => {
         setErrorForm(true);
       }, 20);
-
-    }
-
-    // SUCCESS CASE
-    setErrorForm(false);
-    dispatch(setSuccess("Signup successful! Verify your email."));
-    setTimeout(() => {
-      setErrorForm(true);
-    }, 20);
-  };
-
+    };
+    
+  }
 
   return (
-    <div className="w-screen h-screen bg-gradient-to-br from-purple-500 via-pink-400 to-blue-400 flex items-center justify-center p-4">
+    <div className="w-screen min-h-screen bg-gradient-to-br from-purple-500 via-pink-400 to-blue-400 flex items-center justify-center p-4">
       {errorForm && <Error message={message} />}
       {loader && <Loading />}
       {successMessage && <Success message={successMessage} />}
 
-      <div className="bg-white/20 backdrop-blur-2xl rounded-3xl shadow-2xl flex flex-col md:flex-row w-full max-w-5xl h-auto md:h-4/5 overflow-hidden border border-white/30">
+      <div className=" bg-white/20 backdrop-blur-2xl rounded-3xl shadow-2xl flex flex-col md:p-4 md:flex-row w-full max-w-5xl h-auto md:h-4/5 overflow-hidden border border-white/30">
 
-        <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
+        <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center ">
 
           <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-4 md:mb-6 text-center md:text-left drop-shadow-lg">
             Create Account
@@ -113,6 +113,7 @@ const Signup = () => {
             onChange={handleChange}
             value={user.name}
             className="mb-4 p-4 rounded-xl border border-white/40 bg-white/20 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2 backdrop-blur-sm transition-all duration-300 w-full"
+            required
           />
 
           {/* EMAIL */}

@@ -10,7 +10,7 @@ const Profilelist = () => {
   const navigate = useNavigate();
   const [profiles, setProfiles] = useState([]);
   // console.log(JSON.parse(localStorage.getItem("user")));
-  
+
 
   const getallProfiles = async () => {
     const response = await getProfiles();
