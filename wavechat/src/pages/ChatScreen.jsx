@@ -6,104 +6,76 @@ import { getProfileByUserId } from "../api";
 const ChatScreen = () => {
     const navigate = useNavigate();
     const { id } = useParams();
-
+    const socketRef = useRef(null);
     const [profile, setProfile] = useState([]);
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState("");
-    const ws = useRef(null);
     const messagesEndRef = useRef(null);
-    const user = JSON.parse(localStorage.getItem("profile"));
+    
 
-    const loggedInUserId = user.id
-    console.log(loggedInUserId)
+    const loggedInUserId = localStorage.getItem("id")
+
     if (!loggedInUserId) {
         navigate("/login")
 
     }
     // console.log(loggedInUserId);
 
-    // // Load Profile
-    // useEffect(() => {
-    //     const fetchProfile = async () => {
-    //         const data = await getProfileByUserId(id);
-    //         setProfile(data);
-    //     };
-    //     fetchProfile();
-    // }, [id]);
-
-
-    // // Load Profile
-    // useEffect(() => {
-    //     const fetchProfile = async () => {
-    //         const data = await getProfileByUserId(id);
-    //         // console.log(data)
-    //         setProfile(data);
-    //     };
-    //     fetchProfile();
-    // }, [id]);
-
-
-    // console.log(id)
-
-    // WebSocket Connection
+    // Load Profile
     useEffect(() => {
-        if (!id) return;
-
-        // const roomId = [loggedInUserId, id].sort().join("_");
-        const protocol = "wss";
-        const host = "wavechat-backend-j9xp.onrender.com"; // your Render backend
-        const roomId = [loggedInUserId, id].sort().join("_");
-        ws.current = new WebSocket(
-            `${protocol}://${host}/ws/chat/room/${roomId}/`
-        );
-
-
-
-        // ws.current = new WebSocket( `wss://wavechat-backend-j9xp.onrender.com/ws/chat/room/${roomId}/`);
-
-        ws.current.onopen = () => console.log("WebSocket Connected");
-
-        ws.current.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-
-            // Prevent duplicate messages
-            if (data.sender === loggedInUserId) return;
-
-            setMessages((prev) => [...prev, data]);
+        const fetchProfile = async () => {
+            const data = await getProfileByUserId(id);
+            setProfile(data);
         };
-
-
-        ws.current.onerror = (error) => console.log("WebSocket Error:", error);
-
-        ws.current.onclose = () => console.log("WebSocket Closed");
-
-        return () => ws.current.close();
+        fetchProfile();
     }, [id]);
 
-    // Send Message
-    const sendMessage = () => {
-        if (!newMessage.trim()) return;
+    useEffect(() => {
+    if (!loggedInUserId || !id) return;
 
-        const msgObj = {
-            message: newMessage,
-            sender: loggedInUserId,
-            receiver: id
-        };
+    socketRef.current = new WebSocket(
+        `ws://127.0.0.1:8000/ws/chat/${loggedInUserId}/${id}/`
+    );
 
-        // Add locally
-        setMessages((prev) => [...prev, msgObj]);
-
-        // Send to WebSocket
-        ws.current.send(JSON.stringify(msgObj));
-
-        setNewMessage("");
+    socketRef.current.onopen = () => {
+        console.log("WebSocket connected");
     };
 
-    // Auto Scroll
-    useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [messages]);
+    socketRef.current.onmessage = (e) => {
+        const data = JSON.parse(e.data);
 
+        setMessages(prev => [...prev, data]);
+    };
+
+    socketRef.current.onclose = () => {
+        console.log("WebSocket disconnected");
+    };
+
+    return () => {
+        socketRef.current?.close();
+    };
+}, [loggedInUserId, id]);
+
+const sendMessage = () => {
+    if (!newMessage.trim()) return;
+
+    const payload = {
+        message: newMessage,
+        sender: loggedInUserId,
+    };
+
+    socketRef.current.send(JSON.stringify(payload));
+
+    setNewMessage("");
+};
+
+useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+}, [messages]);
+
+
+
+    
     return (
         <div className="w-screen h-screen flex flex-col bg-gradient-to-br from-purple-300 via-pink-200 to-blue-200">
             <div className="flex items-center p-4 bg-purple-200/60 backdrop-blur-md">

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getProfiles } from "../supabase";
 import { useNavigate } from "react-router-dom";
-import { getSession } from "../supabase";
+// import { getSession } from "../supabase";
 import axios from "axios";
 import { allUsers } from "../api";
 
@@ -30,24 +30,22 @@ const Profilelist = () => {
     navigate("/login");
   };
 
-  useEffect(() => {
-   const access=localStorage.getItem("access")
-   if(!access){
-    navigate("/login")
-   }
-
-  }, [])
 
   useEffect(() => {
+
+    const access = localStorage.getItem("access")
+    if (!access) {
+      navigate("/login")
+    }
     const fetchUsers = async () => {
-     try{
-        const users= await allUsers()
+      try {
+        const users = await allUsers()
         setProfiles(users)
-      }catch(e){
-      console.log(e)
-     }
+      } catch (e) {
+        console.log(e)
+      }
     };
-
+    console.log("hello")
     fetchUsers();
   }, []);
 
@@ -85,7 +83,7 @@ const Profilelist = () => {
 
       {/* Chat List */}
       <div className="space-y-5">
-        {profiles && 
+        {profiles &&
           // .filter(p => p.email !== JSON.parse(localStorage.getItem("user")).email)
           // .sort((a, b) => a - b)
           profiles?.map((p, index) => (
@@ -124,7 +122,7 @@ const Profilelist = () => {
                 <p className="text-black font-semibold text-lg">
                   {p.name}
                 </p>
-              
+
               </div>
 
               {/* Time */}

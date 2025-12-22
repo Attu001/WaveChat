@@ -31,7 +31,7 @@ const Error = ({message="!Something went Wrong "}) => {
    
            {/* Text */}
            <h1 className="text-yellow-200 text-3xl font-bold mb-2 animate-pulse">Error!</h1>
-           <p className="text-red-500 text-lg text-center">{message}</p>
+           <p className="text-red-500 text-lg text-center">{typeof message === "string" ? message : message?.error || "!Something went wrong"}</p>
            
          </div>
        </div>

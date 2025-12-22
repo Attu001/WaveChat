@@ -9,7 +9,8 @@ import Loading from "../components/Loading";
 
 const Login = () => {
   const [activePopup,setActivePopup] = useState(null)
-
+  const [message,setMessage]= useState(null)
+  console.log(message)
   
 
   useEffect(() => {
@@ -36,6 +37,9 @@ const handleLogin = async () => {
     setActivePopup("loader");
 
     const res = await loginUser(user.email, user.password);
+    if(res?.response?.data){
+      setMessage(res?.response?.data)
+    }
 
     if (res?.access) {
       localStorage.setItem("access", res.access);
@@ -50,7 +54,9 @@ const handleLogin = async () => {
     }
   } catch (err) {
     console.error(err);
+    
     setActivePopup("error");
+    setActivePopup(null)
   }
 };
 
@@ -67,7 +73,7 @@ const handleLogin = async () => {
         activePopup=="success" && <Success message="Login Successful! Redirecting..." />
       }
       {
-        activePopup=="error" && <Error message="Invalid email or password." />
+        activePopup=="error" && <Error message={message?message:"Invalid email or password."} />
       }
 
       {/* Glassmorphic Container */}

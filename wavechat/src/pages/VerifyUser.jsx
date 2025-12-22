@@ -22,10 +22,7 @@ const VerifyUser = () => {
         const response = await fetch(
           `http://localhost:8000/auth/verify?token=${token}`
         );
-
-
-
-        const data = await response.json();
+        console.log(response.ok)
 
         if (response.ok) {
           localStorage.setItem("access", token)
@@ -33,13 +30,11 @@ const VerifyUser = () => {
 
           setStatus("success");
 
-          // Redirect after 2 seconds
+          // Redirect after 2 seconds 
           setTimeout(() => {
             navigate("/home");
           }, 2000);
-        } else {
-          setStatus("error");
-        }
+        } 
       } catch (err) {
         setStatus("error");
       }
