@@ -1,10 +1,10 @@
 import axios from 'axios'
 
 // export const base_url = "http://127.0.0.1:8000/"
-export const WebSocket_url="ws://127.0.0.1:8000/ws/chat/"
-// export const base_url="https://wavechat-backend-renderer.onrender.com/"
+export const WebSocket_url="ws://wavechat-backend-renderer.onrender.com/ws/chat/"
+export const base_url="https://wavechat-backend-renderer.onrender.com/"
 
-const ws = new WebSocket("ws://127.0.0.1:8000/ws/test/");
+// const ws = new WebSocket("ws://127.0.0.1:8000/ws/test/");
 
 // ws.onmessage = (e) => console.log(e.data);
 // ws.onopen = () => ws.send("Hello backend");
