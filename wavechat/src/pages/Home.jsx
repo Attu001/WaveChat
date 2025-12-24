@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { getProfileByEmail } from "../supabase";
+// import { getProfileByEmail } from "../supabase";
 import { FaRegCircleUser } from "react-icons/fa6";
 import axios from "axios";
 import { base_url} from "../api";

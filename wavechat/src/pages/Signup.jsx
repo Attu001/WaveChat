@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import Loading from "../components/Loading";
-import { handleSignup } from "../supabase";  // using your function
+// import { handleSignup } from "../supabase";  // using your function
 import Error from "../components/Error";
 import { setError } from "../slices/errorSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -13,9 +13,17 @@ import { registerUser } from "../api";
 const Signup = () => {
   const [loader, setLoader] = useState(false);
   const [errorForm, setErrorForm] = useState(false);
+  const [activeForm,setActiveForm]=useState(null)
   const dispatch = useDispatch();
   const { message } = useSelector((state) => state.error);
   const successMessage = useSelector((state) => state.Success.message);
+
+  const FORM_STATE = {
+  LOADING: "loading",
+  ERROR: "error",
+  SUCCESS: "success",
+};
+
 
 
 
@@ -33,65 +41,60 @@ const Signup = () => {
   };
 
   const onSignup = async () => {
-    setLoader(true);
+  // EMPTY FIELDS CHECK
+  if (
+    user.name.trim() === "" ||
+    user.email.trim() === "" ||
+    user.password.trim() === ""
+  ) {
+    dispatch(setError("All fields are required!"));
+    setActiveForm("error");
 
-
-    // EMPTY FIELDS
-    if (user.name.trim() === "" || user.email.trim() === "" || user.password.trim() === "") {
-      setErrorForm(false);
-      dispatch(setError("All fields are required!"));
-
-      setTimeout(() => {
-        setErrorForm(true);
-      }, 20);
-
-      setLoader(false);
-      return;
-    }else{
-
-      
-      try {
-        const response = await registerUser(user.name, user.email, user.password);
-        setLoader(false);
-        console.log(response)
-        return response;
-      } catch (e) {
-        
-        console.log(e)
-        setLoader(false)
-        setErrorForm(false);
-        let errMsg = "Something went wrong";
-        
-        if (e?.response?.data?.error) {
-          errMsg = e.response.data.error;
-        } else if (e?.response?.data?.email?.[0]) {
-          errMsg = e.response.data.email[0];
-        }
-        
-        dispatch(setError(errMsg));
-        setLoader(false)
-        
-        setTimeout(() => {
-          setErrorForm(true);
-        }, 20);
-        
-      }
-      
-      // SUCCESS CASE
-      setErrorForm(false);
-      dispatch(setSuccess("Signup successful! Verify your email."));
-      setTimeout(() => {
-        setErrorForm(true);
-      }, 20);
-    };
-    
+    setTimeout(() => setActiveForm(null), 2000);
+    return;
   }
+
+  try {
+    setActiveForm("loading");
+
+    const response = await registerUser(
+      user.name,
+      user.email,
+      user.password
+    );
+
+    console.log(response);
+
+    dispatch(setSuccess(response?.data?.message || "Signup successful!"));
+    setActiveForm("success");
+
+    setTimeout(() => setActiveForm(null), 2000);
+
+    return response;
+  } catch (e) {
+    console.log(e);
+
+    let errMsg = "Something went wrong";
+
+    if (e?.response?.data?.error) {
+      errMsg = e.response.data.error;
+    } else if (e?.response?.data?.email?.[0]) {
+      errMsg = e.response.data.email[0];
+    }
+
+    dispatch(setError(errMsg));
+    setActiveForm("error");
+
+    setTimeout(() => setActiveForm(null), 2000);
+  }
+};
 
   return (
     <div className="w-screen min-h-screen bg-gradient-to-br from-purple-500 via-pink-400 to-blue-400 flex items-center justify-center p-4">
-      {errorForm && <Error message={message} />}
-      {loader && <Loading />}
-      {successMessage && <Success message={successMessage} />}
+     {activeForm === "error" && <Error message={message} />}
+{activeForm === "loading" && <Loading />}
+{activeForm === "success" && <Success message={successMessage} />}
+
 
       <div className=" bg-white/20 backdrop-blur-2xl rounded-3xl shadow-2xl flex flex-col md:p-4 md:flex-row w-full max-w-5xl h-auto md:h-4/5 overflow-hidden border border-white/30">
 

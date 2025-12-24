@@ -9,9 +9,7 @@ import Loading from "../components/Loading";
 
 const Login = () => {
   const [activePopup,setActivePopup] = useState(null)
-  const [message,setMessage]= useState(null)
-  console.log(message)
-  
+  const [message,setMessage]= useState(null)  
 
   useEffect(() => {
     localStorage.clear();
