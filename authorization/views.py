@@ -60,21 +60,17 @@ def register(request):
             user.save()
 
         # ---- Email AFTER transaction (non-blocking) ----
-        frontend_url = settings.FRONTEND_URL
+        frontend_url = "https://wavechat-snowy.vercel.app/"
         verify_link = f"{frontend_url}/verify?token={token}"
 
         send_mail(
             subject="Verify your WaveChat account",
             message=f"Please verify your account:\n{verify_link}",
-            from_email=settings.DEFAULT_FROM_EMAIL,
+            from_email="atishchavan066@gmail.com",
             recipient_list=[email],
-            fail_silently=True,   # 🔑 prevents request hang
+            fail_silently=True,  
         )
 
-        return Response(
-            {"message": "User registered. Verification email sent."},
-            status=201
-        )
         return Response(
             {"message": "User registered. Verification email sent."},
             status=201
