@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { useSearchParams, useNavigate, Link } from "react-router-dom";
+import { base_url } from "../api";
 
 const VerifyUser = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
   const token = searchParams.get("token");
-
   const [status, setStatus] = useState("verifying");
   // verifying | success | error
 
@@ -20,22 +19,34 @@ const VerifyUser = () => {
     const verifyUser = async () => {
       try {
         const response = await fetch(
-          `http://localhost:8000/auth/verify?token=${token}`
+          `${base_url}auth/verify?token=${token}`
         );
-        console.log(response.ok)
 
-        if (response.ok) {
-          localStorage.setItem("access", token)
-          localStorage.setItem("id", res.user_id)
+        console.log(response)
 
-          setStatus("success");
+        const data = await response.json();
 
-          // Redirect after 2 seconds 
-          setTimeout(() => {
-            navigate("/home");
-          }, 2000);
-        } 
+        if (!response.ok) {
+          throw new Error(data?.error || "Verification failed");
+        }
+
+        if (data.access) {
+          localStorage.setItem("access", data.access);
+        }
+
+        if (data.user_id) {
+          localStorage.setItem("id", data.user_id);
+        }
+
+        setStatus("success");
+
+        // small delay for UX
+        setTimeout(() => {
+          navigate("/home");
+        }, 1500);
+
       } catch (err) {
+        console.error(err);
         setStatus("error");
       }
     };
@@ -44,8 +55,9 @@ const VerifyUser = () => {
   }, [token, navigate]);
 
   return (
-    <div className="flex items-center  justify-center min-h-screen bg-gradient-to-r from-indigo-500 to-purple-500">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-indigo-500 to-purple-500">
       <div className="p-8 bg-white shadow-lg rounded-xl text-center w-80">
+
         {status === "verifying" && (
           <>
             <div className="loader border-4 w-10 h-10 mx-auto mb-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
@@ -58,7 +70,7 @@ const VerifyUser = () => {
           <>
             <div className="text-green-500 text-5xl mb-4">✔</div>
             <h2 className="text-xl font-semibold">Email Verified!</h2>
-            <p className="text-gray-600 mt-2">Redirecting to home…</p>
+            <p className="text-gray-600 mt-2">Redirecting to Login…</p>
           </>
         )}
 
@@ -75,6 +87,7 @@ const VerifyUser = () => {
             </Link>
           </>
         )}
+
       </div>
     </div>
   );
