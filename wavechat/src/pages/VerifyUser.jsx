@@ -42,7 +42,7 @@ const VerifyUser = () => {
 
         // small delay for UX
         setTimeout(() => {
-          navigate("/home");
+          navigate("/login");
         }, 1500);
 
       } catch (err) {
