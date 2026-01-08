@@ -1,123 +1,116 @@
-import React, { useState } from "react";
-// import { getProfileByEmail, getSession } from "../supabase";
-import { useEffect } from "react";
-import { IoMdArrowBack } from "react-icons/io";
+import React, { useEffect, useRef, useState } from "react";
+import { FiLogOut, FiEdit } from "react-icons/fi";
 import { useNavigate } from "react-router";
-import {getProfileByUserId} from '../api'
+import { getProfileByUserId } from "../api";
 
 const Profile = () => {
-
-  const [profile,setProfile]=useState()
-
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const hasfetched=useRef(false)
+
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      const access = localStorage.getItem("access")
-      if (!access) return;
+    if(hasfetched.current) return;
+    hasfetched.current=true;
 
+    const loadProfile = async () => {
       try {
-        const id=localStorage.getItem("id")
+        const id = localStorage.getItem("id");
         const data = await getProfileByUserId(id);
-        setProfile(data)
-        localStorage.setItem("User_id", data.id);
+        setProfile(data);
       } catch (err) {
-        console.log("Error getting profile:", err);
+        console.error(err);
+      } finally {
+        setLoading(false);
       }
     };
-    fetchProfile();
-  },[]);
+    loadProfile();
+  }, []);
 
-
-
+  if (loading) {
+    return (
+      <div className="flex-1 flex items-center justify-center">
+        Loading...
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-500 via-indigo-600 to-blue-500 flex items-center justify-center py-14 px-6 relative overflow-hidden">
+  <div className="flex-1 overflow-y-auto bg-gray-100 pb-24">
 
-
-
-      {/* BACKGROUND GLOW ELEMENTS */}
-      <div className="absolute top-10 right-20 w-56 h-56 bg-purple-400/30 blur-[90px] rounded-full"></div>
-      <div className="absolute bottom-20 left-24 w-72 h-72 bg-blue-400/30 blur-[100px] rounded-full"></div>
-
-      {/* CARD */}
-      <div className="bg-white/20 backdrop-blur-2xl border border-white/30 shadow-2xl rounded-3xl p-12 w-full max-w-3xl relative 
-                    transform hover:scale-[1.01] transition-all duration-500">
-        {/* BACK BUTTON */}
-        <button
-          onClick={() => navigate("/home")}
-          className="absolute top-8 left-8 z-50 flex items-center gap-2 px-5 py-2.5 
-                  bg-white/10 hover:bg-white/20 text-white backdrop-blur-lg 
-                  rounded-xl border border-white/20 transition-all duration-300 
-                  shadow-md hover:shadow-2xl hover:scale-105" 
-        >
-          <IoMdArrowBack className="text-2xl" />
-          <span className="font-medium">Back</span>
-        </button>
-
-        {/* PROFILE HEADER */}
-        <div className="flex flex-col items-center relative">
-
-          {/* ANIMATED PROFILE RING */}
-          <div className="absolute -top-16 w-48 h-48 rounded-full bg-gradient-to-r from-purple-300 to-pink-300 blur-3xl opacity-40 animate-pulse"></div>
-
-          {profile?.img_url ? (
-            <img
-              src={profile.img_url}
-              alt="profile"
-              className="w-36 h-36 rounded-full ring-4 ring-white shadow-xl object-cover 
-                      hover:scale-105 transition-all duration-300"
-            />
-          ) : (
-            <div className="w-36 h-36 rounded-full bg-gradient-to-br from-purple-600 to-indigo-600 
-                          flex items-center justify-center text-white text-6xl font-bold shadow-xl 
-                          ring-4 ring-white hover:scale-105 transition-all duration-300">
-              {profile?.name ? profile.name[0].toUpperCase():"a"}
-            </div>
-          )}
-
-          <h1 className="mt-6 text-4xl font-extrabold text-white tracking-wide drop-shadow-md capitalize">
-            {profile?.name || "Anonymous"}
-          </h1>
-
-          <p className="text-white/80 text-sm mt-1 tracking-wide">
-            {profile?.email}
-          </p>
-        </div>
-
-        {/* DIVIDER */}
-        <div className="mt-10 h-[1px] w-full bg-white/30"></div>
-
-        {/* PERSONAL INFORMATION */}
-        <div className="mt-10 space-y-6">
-
-          <div className="bg-white/30 backdrop-blur-xl p-7 rounded-2xl shadow-lg border border-white/40 
-                        hover:shadow-2xl hover:bg-white/40 transition-all duration-300">
-
-            <h2 className="text-xl font-bold text-white tracking-wider border-b border-white/40 pb-3">
-              {/* Personal Information */}
-            </h2>
-
-            <div className="mt-5 space-y-4 text-white/90 leading-relaxed">
-              <p> 
-                <span className="font-semibold text-white">Email:</span> {profile?.email}
-              </p>
-              <p>
-                <span className="font-semibold text-white">Phone:</span>{" "}
-                {profile?.number || "Not available"}
-              </p>
-              <p>
-                <span className="font-semibold text-white">Date Joined:</span>{" "}
-                {/* {convertedDate ? convertedDate.toLocaleDateString() : "Not available"} */}
-              </p>
-            </div>
+    {/* Header */}
+    <div className="relative bg-gradient-to-r from-purple-600 to-indigo-600 px-6 pt-10 pb-16">
+      <div className="flex items-center gap-5">
+        {profile?.img_url ? (
+          <img
+            src={profile.img_url}
+            alt="profile"
+            className="w-24 h-24 rounded-full border-4 border-white object-cover shadow-lg"
+          />
+        ) : (
+          <div className="w-24 h-24 rounded-full bg-white text-purple-600 flex items-center justify-center text-4xl font-bold shadow-lg">
+            {profile?.name?.[0]?.toUpperCase() || "A"}
           </div>
+        )}
 
+        <div className="text-white">
+          <h2 className="text-2xl font-semibold capitalize">
+            {profile?.name}
+          </h2>
+          <p className="text-sm opacity-90">{profile?.email}</p>
         </div>
       </div>
     </div>
-  );
 
+    {/* Stats
+    <div className="-mt-10 mx-4 bg-white rounded-2xl shadow-md px-6 py-4 flex justify-between">
+      <Stat label="Posts" value="12" />
+      <Stat label="Chats" value="5" />
+      <Stat label="Alerts" value="3" />
+    </div> */}
+
+    {/* Actions */}
+    <div className="mx-4 mt-4 bg-white rounded-2xl shadow-sm divide-y">
+      <button className="w-full flex items-center gap-3 px-5 py-4 text-gray-700 hover:bg-gray-50 transition">
+        <FiEdit className="text-purple-600" />
+        <span className="font-medium">Edit Profile</span>
+      </button>
+
+      <button
+        onClick={() => navigate("/login")}
+        className="w-full flex items-center gap-3 px-5 py-4 text-red-600 hover:bg-red-50 transition"
+      >
+        <FiLogOut />
+        <span className="font-medium">Logout</span>
+      </button>
+    </div>
+
+    {/* Personal Info */}
+    <div className="mx-4 mt-4 bg-white rounded-2xl shadow-sm px-5 py-4">
+      <h4 className="text-xs font-semibold text-gray-400 uppercase mb-3">
+        Personal Information
+      </h4>
+
+      <InfoRow label="Email" value={profile?.email} />
+      <InfoRow label="Phone" value={profile?.number || "Not available"} />
+    </div>
+  </div>
+);
 };
 
 export default Profile;
+
+const Stat = ({ label, value }) => (
+  <div className="text-center">
+    <p className="text-xl font-bold text-gray-900">{value}</p>
+    <p className="text-xs text-gray-500">{label}</p>
+  </div>
+);
+
+const InfoRow = ({ label, value }) => (
+  <div className="flex justify-between items-center py-3 border-b last:border-none">
+    <span className="text-sm text-gray-500">{label}</span>
+    <span className="text-sm font-medium text-gray-900">{value}</span>
+  </div>
+);
