@@ -1,10 +1,21 @@
 import axios from 'axios'
 
-// export const base_url = "http://localhost:8000/"
-export const ws_url="ws://wavechat-backend-renderer.onrender.com/ws/chat/"
-export const base_url="https://wavechat-backend-renderer.onrender.com/"
 
-// export const ws_url ="ws://localhost:8000/"
+
+  const  apihost="wss"
+  const basehost="https"
+
+if(window.location.host=== "localhost"){
+     apihost="ws"
+   basehost="http"
+}
+
+
+export const base_url=`${basehost}://wavechat-backend-renderer.onrender.com/`
+export const ws_url=`${apihost}://wavechat-backend-renderer.onrender.com/`
+
+
+
 
 
 //getting all Users
