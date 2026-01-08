@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 // export const base_url = "http://localhost:8000/"
-export const WebSocket_url="ws://wavechat-backend-renderer.onrender.com/ws/chat/"
+export const ws_url="ws://wavechat-backend-renderer.onrender.com/ws/chat/"
 export const base_url="https://wavechat-backend-renderer.onrender.com/"
 
 // export const ws_url ="ws://localhost:8000/"
