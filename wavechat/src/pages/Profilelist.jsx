@@ -32,8 +32,8 @@ const Profilelist = () => {
     navigate("/login");
   };
 
-
   useEffect(() => {
+    const uid=localStorage.getItem("id")
     // if(profiles) return;
     const access = localStorage.getItem("access")
     if (!access) {
@@ -42,71 +42,51 @@ const Profilelist = () => {
     const fetchUsers = async () => {
       try {
         const users = await allUsers()
-        setProfiles(users)
+        setProfiles(users.filter((item)=>item.id!=uid))
+        
       } catch (e) {
         console.log(e)
       }
     };
-    console.log("hello")
     fetchUsers();
   }, []);
 
-    console.log(profiles)
-
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#ffd1ff] via-[#ffe4f3] to-[#d3faff] p-8 relative overflow-hidden">
+  <div className="min-h-screen min-w-screen bg-slate-100 over relative ">
 
-      {/* Floating Shapes */}
-      <div className="absolute w-72 h-72 bg-pink-300 blur-3xl opacity-30 rounded-full -top-24 -left-10 animate-pulse"></div>
-      <div className="absolute w-72 h-72 bg-blue-300 blur-3xl opacity-30 rounded-full -bottom-24 -right-10 animate-pulse"></div>
-
-      {/* Top Buttons */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-black text-3xl font-extrabold drop-shadow-lg tracking-wide">
-          Chat List
+    {/* Top Bar */}
+    <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-xl border-b border-slate-200">
+      <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+        <h1 className="text-xl font-semibold text-slate-900">
+          Messages
         </h1>
-
-        <div className="flex gap-3">
-          <button
-            onClick={() => navigate("/home")}
-            className="px-4 py-2 bg-white/40 backdrop-blur-md rounded-xl shadow-md text-black font-semibold border border-white/30 hover:bg-white/60 transition-all"
-          >
-            Home
-          </button>
-
-          <button
-            onClick={handleLogout}
-            className="px-4 py-2 bg-black text-white rounded-xl shadow-md font-semibold hover:bg-gray-900 transition-all"
-          >
-            Logout
-          </button>
-        </div>
       </div>
+    </div>
 
-      {/* Chat List */}
-      <div className="space-y-5">
+    {/* Content */}
+    <div className="max-w-5xl mx-auto px-4 py-6 ">
 
-          {profiles.length>0 ?
-          profiles?.map((p, index) => (
+      {profiles.length > 0 ? (
+        <div className="grid gap-4">
+          {profiles.map((p, index) => (
             <ProfileCard
               key={p.id}
               profile={p}
               index={index}
             />
-          ))
-
-          :
-          <div className="">
-            <div className=" flex justify-center h-screen items-center  " >
-              <FiLoader className="animate-spin text-[50px] lg:text-[140px] " />
-            </div>
-          </div>
-           }
-
-      </div>
+          ))}
+        </div>
+      ) : (
+        <div className="flex flex-col items-center justify-center h-[60vh] text-slate-400">
+          <FiLoader className="animate-spin text-5xl mb-4" />
+          <p className="text-sm">Loading conversations…</p>
+        </div>
+      )}
     </div>
-  );
+  </div>
+);
+
 };
 
 export default Profilelist;

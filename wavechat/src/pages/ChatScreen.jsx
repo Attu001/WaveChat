@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { IoIosArrowBack } from "react-icons/io";
 import { useParams, useNavigate } from "react-router-dom";
 import { getProfileByUserId } from "../api";
+import { ws_url } from "../api";
+import { useSelector } from "react-redux";
 
 const ChatScreen = () => {
     const navigate = useNavigate();
@@ -11,6 +13,11 @@ const ChatScreen = () => {
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState("");
     const messagesEndRef = useRef(null);
+    const notifications = useSelector(
+  (state) => state.notification
+);
+
+
     
 
     const loggedInUserId = localStorage.getItem("id")
@@ -19,7 +26,7 @@ const ChatScreen = () => {
         navigate("/login")
 
     }
-    // console.log(loggedInUserId);
+
 
     // Load Profile
     useEffect(() => {
@@ -34,8 +41,9 @@ const ChatScreen = () => {
     if (!loggedInUserId || !id) return;
 
     socketRef.current = new WebSocket(
-        `ws://127.0.0.1:8000/ws/chat/${loggedInUserId}/${id}/`
+        `${ws_url}ws/chat/${loggedInUserId}/${id}/`
     );
+    
 
     socketRef.current.onopen = () => {
         console.log("WebSocket connected");
@@ -81,7 +89,7 @@ useEffect(() => {
             <div className="flex items-center p-4 bg-purple-200/60 backdrop-blur-md">
                 <IoIosArrowBack
                     className="text-[40px] cursor-pointer"
-                    onClick={() => navigate(`/list`)}
+                    onClick={() => navigate(`/home`)}
                 />
                 <div className="ml-3 w-10 h-10 rounded-full bg-purple-500 text-white flex items-center justify-center">
                     {profile?.name?.charAt(0).toUpperCase()}

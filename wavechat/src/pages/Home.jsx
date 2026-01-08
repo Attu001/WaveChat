@@ -4,6 +4,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { FaRegCircleUser } from "react-icons/fa6";
 import axios from "axios";
 import { base_url} from "../api";
+import { FaMessage } from "react-icons/fa6";
 
 const Home = () => {
     const navigate = useNavigate();
@@ -87,8 +88,8 @@ const Home = () => {
                             Start Chatting
                         </button>
 
-                        <button className="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-xl font-semibold shadow-lg transition transform hover:scale-105">
-                            Learn More
+                        <button onClick={()=>navigate("/notifications")} className="bg-white/20 flex items-center gap-2 hover:bg-white/30 text-white px-6 py-3 rounded-xl font-semibold shadow-lg transition transform hover:scale-105">
+                            Notifications <FaMessage/>
                         </button>
                     </div>
                 </div>
