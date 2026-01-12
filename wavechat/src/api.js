@@ -1,18 +1,20 @@
 import axios from 'axios'
 
 
+const isLocalhost =
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1";
 
-  const  apihost="wss"
-  const basehost="https"
+const base_url = isLocalhost
+  ? "http://localhost:8000/"
+  : "https://wavechat-backend-renderer.onrender.com/";
 
-if(window.location.host=== "localhost"){
-     apihost="ws"
-   basehost="http"
-}
+const ws_url = isLocalhost
+  ? "ws://localhost:8000/"
+  : "wss://wavechat-backend-renderer.onrender.com/";
 
+export { base_url, ws_url };
 
-export const base_url=`${basehost}://wavechat-backend-renderer.onrender.com/`
-export const ws_url=`${apihost}://wavechat-backend-renderer.onrender.com/`
 
 
 
@@ -28,7 +30,7 @@ export const loginUser = async (email, password) => {
         return response.data
     } catch (e) {
         console.log(e)
-        return e    
+        return e
     }
 }
 
@@ -56,25 +58,25 @@ export const allUsers = async () => {
 }
 
 
-export const getProfileByUserId = async (id) => {
-    try {
-        const response = await axios.post(base_url+"auth/profile/",{"id":id})
-        return response.data
-    } catch (e) {
-        console.log(e)
-        return
-    }
-}
 
 
-// export const getWebSocketConnection=(userId1,userId2)=>{
-//     try{
-//         const newWebSocketConnect= new WebSocket(WebSocket_url+`${userId1}+${userId2}/`)
-//         console.log("connected to websocket")
-//     }catch(e){
-//         console.log(e)
-//         console.log("error to connect the websocket")
 
-//     }
-// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

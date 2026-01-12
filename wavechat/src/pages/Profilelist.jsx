@@ -3,7 +3,8 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 // import { getSession } from "../supabase";
 import axios from "axios";
-import { allUsers } from "../api";
+// import { allUsers } from "../api";
+import { allUsers } from "../api/services/userServices";
 import ProfileCard from "../components/ProfileCard";
 import { FiLoader } from "react-icons/fi";
 
@@ -34,16 +35,10 @@ const Profilelist = () => {
 
   useEffect(() => {
     const uid=localStorage.getItem("id")
-    // if(profiles) return;
-    const access = localStorage.getItem("access")
-    if (!access) {
-      navigate("/login")
-    }
     const fetchUsers = async () => {
       try {
         const users = await allUsers()
-        setProfiles(users.filter((item)=>item.id!=uid))
-        
+        setProfiles(users.data.filter((item)=>item.id!=uid))
       } catch (e) {
         console.log(e)
       }
@@ -53,19 +48,19 @@ const Profilelist = () => {
 
 
   return (
-  <div className="min-h-screen min-w-screen bg-slate-100 over relative ">
+  <div className="min-h-screen  bg-slate-100  relative ">
 
-    {/* Top Bar */}
-    <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-xl border-b border-slate-200">
+    {/* Top Bar */} 
+    {/* <div className=" w-screen  bg-white/80 backdrop-blur-xl border-b border-slate-200">
       <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
         <h1 className="text-xl font-semibold text-slate-900">
           Messages
         </h1>
       </div>
-    </div>
+    </div> */}
 
     {/* Content */}
-    <div className="max-w-5xl mx-auto px-4 py-6 ">
+    <div className="w-full h-full ">
 
       {profiles.length > 0 ? (
         <div className="grid gap-4">

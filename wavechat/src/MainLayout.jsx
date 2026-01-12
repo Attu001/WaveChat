@@ -13,12 +13,12 @@ const MainLayout = () => {
     <div className="h-screen flex flex-col bg-gray-100 ">
 
       {/* 🔝 Navbar */}
-      <div className="h-14 bg-purple-600 text-white flex items-center px-4 shadow">
-        <h1 className="text-lg font-semibold">WaveChat</h1>
+      <div className="h-14 bg-purple-600 text-white flex items-center py-4 shadow">
+        <h1 className="text-lg font-semibold">{activeTab}</h1>
       </div>
 
       {/* 🧱 Main Content */}
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="w-screen h-screen overflow-y-auto">
         {activeTab === "posts" && <Posts />}
         {activeTab === "notifications" && <NotificationPage />}
         {activeTab === "chat" && <Profilelist />}

@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import { IoIosArrowBack } from "react-icons/io";
 import { useParams, useNavigate } from "react-router-dom";
-import { getProfileByUserId } from "../api";
+import { getProfileByUserId, getProfileOnChat } from "../api/services/userServices";
 import { ws_url } from "../api";
 import { useSelector } from "react-redux";
-
+import { useLocation } from "react-router-dom";
 const ChatScreen = () => {
     const navigate = useNavigate();
     const { id } = useParams();
@@ -13,12 +13,21 @@ const ChatScreen = () => {
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState("");
     const messagesEndRef = useRef(null);
+    const { state } = useLocation();
     const notifications = useSelector(
-  (state) => state.notification
-);
+        (state) => state.notification
+    );
 
 
-    
+    useEffect(() => {
+        if (state?.userId) {
+
+            getProfileByUserId(state.userId)
+                .then(res => setProfile(res.data))
+                .catch(console.error);
+        }
+    }, [state]);
+
 
     const loggedInUserId = localStorage.getItem("id")
 
@@ -28,62 +37,54 @@ const ChatScreen = () => {
     }
 
 
-    // Load Profile
+
     useEffect(() => {
-        const fetchProfile = async () => {
-            const data = await getProfileByUserId(id);
-            setProfile(data);
+        if (!loggedInUserId || !id) return;
+
+        socketRef.current = new WebSocket(
+            `${ws_url}ws/chat/${loggedInUserId}/${id}/`
+        );
+
+
+        socketRef.current.onopen = () => {
+            console.log("WebSocket connected");
         };
-        fetchProfile();
-    }, [id]);
+
+        socketRef.current.onmessage = (e) => {
+            const data = JSON.parse(e.data);
+
+            setMessages(prev => [...prev, data]);
+        };
+
+        socketRef.current.onclose = () => {
+            console.log("WebSocket disconnected");
+        };
+
+        return () => {
+            socketRef.current?.close();
+        };
+    }, [loggedInUserId, id]);
+
+    const sendMessage = () => {
+        if (!newMessage.trim()) return;
+
+        const payload = {
+            message: newMessage,
+            sender: loggedInUserId,
+        };
+
+        socketRef.current.send(JSON.stringify(payload));
+
+        setNewMessage("");
+    };
 
     useEffect(() => {
-    if (!loggedInUserId || !id) return;
-
-    socketRef.current = new WebSocket(
-        `${ws_url}ws/chat/${loggedInUserId}/${id}/`
-    );
-    
-
-    socketRef.current.onopen = () => {
-        console.log("WebSocket connected");
-    };
-
-    socketRef.current.onmessage = (e) => {
-        const data = JSON.parse(e.data);
-
-        setMessages(prev => [...prev, data]);
-    };
-
-    socketRef.current.onclose = () => {
-        console.log("WebSocket disconnected");
-    };
-
-    return () => {
-        socketRef.current?.close();
-    };
-}, [loggedInUserId, id]);
-
-const sendMessage = () => {
-    if (!newMessage.trim()) return;
-
-    const payload = {
-        message: newMessage,
-        sender: loggedInUserId,
-    };
-
-    socketRef.current.send(JSON.stringify(payload));
-
-    setNewMessage("");
-};
-
-useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-}, [messages]);
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, [messages]);
 
 
 
-    
+
     return (
         <div className="w-screen h-screen flex flex-col bg-gradient-to-br from-purple-300 via-pink-200 to-blue-200">
             <div className="flex items-center p-4 bg-purple-200/60 backdrop-blur-md">
