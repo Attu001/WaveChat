@@ -11,30 +11,7 @@ const NotificationPage = () => {
 
   const audioRef = useRef(null);
 
-  useEffect(() => {
-    if (!userId) return;
 
-    const socket = new WebSocket(
-      `${ws_url}ws/notifications/${userId}/`
-    );
-
-    socket.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-
-      dispatch(
-        addNotification({
-          message: data.message,
-          sender_id: data.sender_id,
-          time: new Date().toISOString(),
-        })
-      );
-
-      // 🔊 Play sound
-      audioRef.current?.play().catch(() => {});
-    };
-
-    return () => socket.close();
-  }, [userId, dispatch]);
 
   return (
     <div className="min-h-screen bg-gray-100 flex justify-center px-4 py-10">

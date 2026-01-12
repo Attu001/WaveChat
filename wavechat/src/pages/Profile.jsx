@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { FiLogOut, FiEdit } from "react-icons/fi";
 import { useNavigate } from "react-router";
-import { getProfileByUserId } from "../api";
+// import { getProfileByUserId } from "../api";
+import { getProfileByUserId } from "../api/services/userServices";
 
 const Profile = () => {
   const [profile, setProfile] = useState(null);
@@ -16,9 +17,8 @@ const Profile = () => {
 
     const loadProfile = async () => {
       try {
-        const id = localStorage.getItem("id");
-        const data = await getProfileByUserId(id);
-        setProfile(data);
+        const data = await getProfileByUserId();
+        setProfile(data.data);
       } catch (err) {
         console.error(err);
       } finally {
@@ -30,14 +30,14 @@ const Profile = () => {
 
   if (loading) {
     return (
-      <div className="flex-1 flex items-center justify-center">
+      <div className="flex-1 flex items-center h-screen justify-center">
         Loading...
       </div>
     );
   }
 
   return (
-  <div className="flex-1 overflow-y-auto bg-gray-100 pb-24">
+  <div className="flex-1 overflow-y-auto h-screen bg-gray-100 pb-24">
 
     {/* Header */}
     <div className="relative bg-gradient-to-r from-purple-600 to-indigo-600 px-6 pt-10 pb-16">

@@ -4,9 +4,12 @@ import { useNavigate } from "react-router-dom";
 const ProfileCard = ({ profile, index }) => {
   const navigate = useNavigate();
 
+  const handleNavigate=()=>{
+    navigate(`/chat-screen/4`, {state: {userId: profile.id,},});}
+
   return (
     <div
-      onClick={() => navigate(`/chat-screen/${profile.id}`)}
+      onClick={() => handleNavigate()}
       className="group flex items-center gap-4 p-4 rounded-2xl bg-white shadow-sm hover:shadow-md cursor-pointer transition-all border border-slate-200"
     >
       {/* Avatar */}
