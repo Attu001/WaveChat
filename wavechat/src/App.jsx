@@ -47,6 +47,18 @@ function App() {
       return () => socket.close();
     }, [userId, dispatch]);
   
+    const [audioUnlocked, setAudioUnlocked] = useState(false);
+
+const unlockAudio = () => {
+  if (!audioUnlocked && audioRef.current) {
+    audioRef.current.play().then(() => {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      setAudioUnlocked(true);
+    });
+  }
+};
+
 
 
 
@@ -54,19 +66,20 @@ function App() {
 
   return (
     <>
+    <div onClick={unlockAudio}>
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<Login />} />
         <Route path="/home" element={<MainLayout/>} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="/chat-screen/:id" element={<ChatScreen />} />
+        <Route path="/chat-screen" element={<ChatScreen />} />
         <Route path="/list" element={<Profilelist />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/verify" element={<VerifyUser />} />
         <Route path="/notifications" element={<NotificationPage/>}/>
         
       </Routes>
-
+</div>
       <div>
       <audio ref={audioRef} src="/notification.wav" />
       </div>

@@ -7,7 +7,9 @@ import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 const ChatScreen = () => {
     const navigate = useNavigate();
-    const { id } = useParams();
+
+    const searchparams = new URLSearchParams(window.location.search)
+    const id = searchparams.get("id")
     const socketRef = useRef(null);
     const [profile, setProfile] = useState([]);
     const [messages, setMessages] = useState([]);
@@ -29,7 +31,9 @@ const ChatScreen = () => {
     }, [state]);
 
 
-    const loggedInUserId = localStorage.getItem("id")
+    const loggedInUserId = Number(localStorage.getItem("id"));
+    const token= localStorage.getItem("access")
+
 
     if (!loggedInUserId) {
         navigate("/login")
@@ -42,7 +46,7 @@ const ChatScreen = () => {
         if (!loggedInUserId || !id) return;
 
         socketRef.current = new WebSocket(
-            `${ws_url}ws/chat/${loggedInUserId}/${id}/`
+            `${ws_url}ws/chat/${loggedInUserId}/${id}/?token=${token}`
         );
 
 
@@ -53,8 +57,11 @@ const ChatScreen = () => {
         socketRef.current.onmessage = (e) => {
             const data = JSON.parse(e.data);
 
-            setMessages(prev => [...prev, data]);
+            if (data.type === "chat_message") {
+                setMessages(prev => [...prev, data]);
+            }
         };
+
 
         socketRef.current.onclose = () => {
             console.log("WebSocket disconnected");
@@ -67,16 +74,15 @@ const ChatScreen = () => {
 
     const sendMessage = () => {
         if (!newMessage.trim()) return;
+        if (!socketRef.current || socketRef.current.readyState !== WebSocket.OPEN) return;
 
-        const payload = {
-            message: newMessage,
-            sender: loggedInUserId,
-        };
-
-        socketRef.current.send(JSON.stringify(payload));
+        socketRef.current.send(
+            JSON.stringify({ message: newMessage })
+        );
 
         setNewMessage("");
     };
+
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
