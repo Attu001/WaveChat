@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from "react";
-import { ws_url } from "../api";
 import { useDispatch, useSelector } from "react-redux";
 import { addNotification } from "../slices/notificationSlice";
 // import {notificationaudio} from "WaveChat/wavechat/public/notification.wav"
@@ -10,7 +9,7 @@ const NotificationPage = () => {
   const dispatch = useDispatch();
 
   const audioRef = useRef(null);
-
+ 
 
 
   return (

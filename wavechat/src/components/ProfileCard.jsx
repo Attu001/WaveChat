@@ -5,7 +5,7 @@ const ProfileCard = ({ profile, index }) => {
   const navigate = useNavigate();
 
   const handleNavigate=()=>{
-    navigate(`/chat-screen/4`, {state: {userId: profile.id,},});}
+    navigate(`/chat-screen?id=${profile.id}`, {state: {userId: profile.id,},});}
 
   return (
     <div
