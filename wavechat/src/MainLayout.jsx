@@ -1,10 +1,13 @@
 import React, { useState } from "react";
-import { FaHome, FaComments, FaBell, FaUser } from "react-icons/fa";
+import { FaHome, FaComments, FaBell, FaUser, FaCheckDouble } from "react-icons/fa";
 import BottomItem from "./components/BottomItem"
 import Profile from "./pages/Profile";
 import Profilelist from "./pages/Profilelist";
 import NotificationPage from "./components/NotificationPage"
 import Posts from "./pages/Posts";
+import UsersList from "./pages/UsersList";
+import { FaRegSquare } from "react-icons/fa6";
+import ChatRequestsPage from "./pages/ChatRequestsPage";
 
 const MainLayout = () => {
   const [activeTab, setActiveTab] = useState("posts");
@@ -23,6 +26,9 @@ const MainLayout = () => {
         {activeTab === "notifications" && <NotificationPage />}
         {activeTab === "chat" && <Profilelist />}
         {activeTab === "profile" && <Profile />}
+        {activeTab === "send_Request" && <UsersList/>}
+         {activeTab === "received_Request" && <ChatRequestsPage />}
+
       </div>
 
       {/* 🔽 Bottom Bar */}
@@ -50,6 +56,18 @@ const MainLayout = () => {
           label="Profile"
           active={activeTab === "profile"}
           onClick={() => setActiveTab("profile")}
+        />
+        <BottomItem
+          icon={<FaRegSquare/>}
+          label="Request"
+          active={activeTab === "send_Request"}
+          onClick={() => setActiveTab("send_Request")}
+        />
+        <BottomItem
+          icon={<FaCheckDouble/>}
+          label="Received Requests"
+          active={activeTab === "received_Request"}
+          onClick={() => setActiveTab("received_Request")}
         />
       </div>
     </div>
