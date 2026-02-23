@@ -16,37 +16,58 @@ import { addNotification } from './slices/notificationSlice';
 import MainLayout from './MainLayout';
 function App() {
   const userId =localStorage.getItem("id")
+  console.log("🚀 ~ file: App.jsx:11 ~ App ~ userId:", userId)
   // const [notification, setNotification] = useState(null);
   const {notifications}=useSelector((state)=>state.notification.notifications)
   const dispatch=useDispatch();
   
   const audioRef = useRef(null);
   
-    useEffect(() => {
-      if (!userId) return;
-  
-      const socket = new WebSocket(
-        `${ws_url}ws/notifications/${userId}/`
+   useEffect(() => {
+  if (!userId) return;
+
+  let socket;
+
+  const connectSocket = () => {
+    socket = new WebSocket(
+      `${ws_url}ws/notifications/${userId}/`
+    );
+
+    socket.onopen = () => {
+      console.log("🟢 WebSocket Connected");
+    };
+
+    socket.onerror = (err) => {
+      console.log("🔴 WebSocket Error", err);
+    };
+
+    socket.onclose = () => {
+      console.log("⚠️ WebSocket Closed");
+    };
+
+    socket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+
+      dispatch(
+        addNotification({
+          message: data.message,
+          sender_id: data.sender_id,
+          time: new Date().toISOString(),
+        })
       );
-  
-      socket.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-  
-        dispatch(
-          addNotification({
-            message: data.message,
-            sender_id: data.sender_id,
-            time: new Date().toISOString(),
-          })
-        );
-  
-        // 🔊 Play sound
-        audioRef.current?.play().catch(() => {});
-      };
-  
-      return () => socket.close();
-    }, [userId, dispatch]);
-  
+
+      audioRef.current?.play().catch(() => {});
+    };
+  };
+
+  // ⏳ Delay connection slightly (important for Render)
+  const timeout = setTimeout(connectSocket, 2000);
+
+  return () => {
+    clearTimeout(timeout);
+    socket?.close();
+  };
+}, [userId, dispatch]);
     const [audioUnlocked, setAudioUnlocked] = useState(false);
 
 const unlockAudio = () => {

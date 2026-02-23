@@ -10,7 +10,7 @@ const UsersList = () => {
 
   // ⭐ fetch only first time (when users === null)
   useEffect(() => {
-    if (users === null) {
+    if (users === null || users.length === 0) {
       dispatch(fetchUsers());
     }
   }, [users, dispatch]);
