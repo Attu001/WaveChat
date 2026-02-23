@@ -22,6 +22,10 @@ const Profilelist = () => {
     }
   }, [dispatch, profiles.length]);
 
+  const filteredProfiles = profiles?.filter(
+  (p) => p.status !== "ACCEPTED"
+);
+
   return (
     <div className="min-h-screen bg-slate-100 relative">
       <div className="w-full h-full">
@@ -29,9 +33,9 @@ const Profilelist = () => {
           <div className="w-full h-full  flex items-center justify-center">
             <FiLoader className="animate-spin text-3xl text-slate-500" />
           </div>
-        ) : profiles.length > 0 ? (
+        ) : profiles.length > 0  ? (
           <div className="grid gap-4">
-            {profiles.map((p, index) => (
+            {filteredProfiles.map((p, index) => (
               <ProfileCard key={p.id} profile={p} index={index} />
             ))}
           </div>

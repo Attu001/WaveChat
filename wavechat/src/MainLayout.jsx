@@ -24,10 +24,10 @@ const MainLayout = () => {
       <div className="w-screen h-screen overflow-y-auto">
         {activeTab === "posts" && <Posts />}
         {activeTab === "notifications" && <NotificationPage />}
-        {activeTab === "chat" && <Profilelist />}
+        {activeTab === "send_Request" && <Profilelist />}
         {activeTab === "profile" && <Profile />}
-        {activeTab === "send_Request" && <UsersList/>}
-         {activeTab === "received_Request" && <ChatRequestsPage />}
+        {activeTab === "chat" && <UsersList/>}
+    
 
       </div>
 
@@ -62,12 +62,6 @@ const MainLayout = () => {
           label="Request"
           active={activeTab === "send_Request"}
           onClick={() => setActiveTab("send_Request")}
-        />
-        <BottomItem
-          icon={<FaCheckDouble/>}
-          label="Received Requests"
-          active={activeTab === "received_Request"}
-          onClick={() => setActiveTab("received_Request")}
         />
       </div>
     </div>
