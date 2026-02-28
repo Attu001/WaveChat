@@ -1,52 +1,220 @@
-import React, { use, useEffect, useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { addNotification } from "../slices/notificationSlice";
-// import {notificationaudio} from "WaveChat/wavechat/public/notification.wav"
+import React, { useEffect, useRef, useState } from "react";
 import { notifications } from "../api/services/userServices";
-import { useState } from "react";
+import { motion } from "framer-motion";
+import PageLoader from "./PageLoader";
+import { FiBell, FiRefreshCw } from "react-icons/fi";
+
+const containerVariants = {
+  hidden: {},
+  visible: {
+    transition: { staggerChildren: 0.06, delayChildren: 0.08 },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 18 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] },
+  },
+};
+
+// Helper: relative time string
+const timeAgo = (dateStr) => {
+  if (!dateStr) return "";
+  const now = new Date();
+  const date = new Date(dateStr);
+  const seconds = Math.floor((now - date) / 1000);
+
+  if (seconds < 60) return "Just now";
+  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+  if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+  if (seconds < 604800) return `${Math.floor(seconds / 86400)}d ago`;
+
+  return date.toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+  });
+};
+
+// Notification type icon & color based on message content
+const getNotifStyle = (message) => {
+  const msg = (message || "").toLowerCase();
+  if (msg.includes("accepted"))
+    return { emoji: "✅", bg: "bg-green-50", border: "border-green-100", accent: "text-green-600" };
+  if (msg.includes("rejected"))
+    return { emoji: "❌", bg: "bg-red-50", border: "border-red-100", accent: "text-red-500" };
+  if (msg.includes("request"))
+    return { emoji: "👋", bg: "bg-blue-50", border: "border-blue-100", accent: "text-blue-600" };
+  return { emoji: "💬", bg: "bg-purple-50", border: "border-purple-100", accent: "text-purple-600" };
+};
 
 const NotificationPage = () => {
-
-  // const { notifications } = useSelector((state) => state.notification);
-  const dispatch = useDispatch();
-  const [notificationsList,setNotificationsList] = useState([]);
+  const [notificationsList, setNotificationsList] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
 
   const audioRef = useRef(null);
-  
-  const fetchNotifications = async () => {
+
+  const fetchNotifications = async (isRefresh = false) => {
     try {
+      if (isRefresh) setRefreshing(true);
+      else setLoading(true);
+      setError(null);
+
       const response = await notifications();
       setNotificationsList(response.data);
-    } catch (error) {
-      console.error("Error fetching notifications:", error);
+    } catch (err) {
+      console.error("Error fetching notifications:", err);
+      setError("Failed to load notifications");
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
     }
-  }
+  };
 
   useEffect(() => {
     fetchNotifications();
-  },[]);
+  }, []);
 
+  // Loading state
+  if (loading && notificationsList.length === 0) {
+    return (
+      <div className="min-h-screen bg-gray-100">
+        <PageLoader message="Loading notifications..." />
+      </div>
+    );
+  }
+
+  // Error state
+  if (error && notificationsList.length === 0) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex justify-center px-4 py-10">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-col items-center justify-center py-20 gap-4"
+        >
+          <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center">
+            <span className="text-2xl">⚠️</span>
+          </div>
+          <p className="text-gray-600 font-medium">Something went wrong</p>
+          <p className="text-sm text-gray-400">{error}</p>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => fetchNotifications()}
+            className="flex items-center gap-2 px-5 py-2.5 bg-purple-600 text-white rounded-xl text-sm font-medium shadow-md"
+          >
+            <FiRefreshCw size={14} />
+            Try Again
+          </motion.button>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex justify-center px-4 py-10">
+    <div className="min-h-screen bg-gray-100 flex justify-center px-4 py-6">
       <audio ref={audioRef} src="/notification.wav" />
 
       <div className="w-full max-w-2xl">
-        <h2 className="text-2xl font-semibold mb-6">Notifications</h2>
-
-        {notificationsList.length === 0 ? (
-          <p>No notifications</p>
-        ) : (
-          notificationsList.map((n, index) => (
-            <div
-              key={index}
-              className="bg-white p-4 rounded shadow mb-3"
-            >
-              <h4 className="font-semibold">New Message</h4>
-              <p>{n.message}</p>
-              <span className="text-xs text-gray-400">{n.created_at}</span>
+        {/* Header with refresh */}
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-center justify-between mb-5"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
+              <FiBell className="text-purple-600 text-lg" />
             </div>
-          ))
+            <div>
+              <h2 className="text-xl font-bold text-gray-800">Notifications</h2>
+              <p className="text-xs text-gray-400">
+                {notificationsList.length} notification{notificationsList.length !== 1 ? "s" : ""}
+              </p>
+            </div>
+          </div>
+
+          <motion.button
+            whileHover={{ scale: 1.05, rotate: 180 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={() => fetchNotifications(true)}
+            disabled={refreshing}
+            className="w-9 h-9 rounded-full bg-white shadow-sm border border-gray-100 flex items-center justify-center text-gray-400 hover:text-purple-600 transition"
+          >
+            <FiRefreshCw size={16} className={refreshing ? "animate-spin" : ""} />
+          </motion.button>
+        </motion.div>
+
+        {/* Inline refresh banner */}
+        {refreshing && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="flex items-center justify-center py-2 mb-3 bg-purple-50 rounded-xl border border-purple-100"
+          >
+            <div className="w-4 h-4 border-2 border-purple-400 border-t-transparent rounded-full animate-spin mr-2" />
+            <span className="text-xs text-purple-600 font-medium">Refreshing...</span>
+          </motion.div>
+        )}
+
+        {/* Empty state */}
+        {notificationsList.length === 0 ? (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex flex-col items-center justify-center py-20 gap-3"
+          >
+            <div className="w-16 h-16 rounded-full bg-purple-50 flex items-center justify-center">
+              <FiBell className="text-2xl text-purple-300" />
+            </div>
+            <p className="text-gray-600 font-medium">All caught up!</p>
+            <p className="text-sm text-gray-400">No notifications yet</p>
+          </motion.div>
+        ) : (
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className="space-y-3"
+          >
+            {notificationsList.map((n, index) => {
+              const style = getNotifStyle(n.message);
+              return (
+                <motion.div
+                  key={n.id || index}
+                  variants={itemVariants}
+                  whileHover={{ x: 3, boxShadow: "0 4px 20px rgba(0,0,0,0.08)" }}
+                  className={`flex items-start gap-3 p-4 rounded-2xl border ${style.bg} ${style.border} transition-all`}
+                >
+                  {/* Icon */}
+                  <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm flex-shrink-0 text-lg">
+                    {n.sender?.name?.[0]?.toUpperCase() || style.emoji}
+                  </div>
+
+                  {/* Content */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className={`text-sm font-semibold ${style.accent}`}>
+                        {n.sender?.name || "WaveChat"}
+                      </p>
+                      <span className="text-[11px] text-gray-400 whitespace-nowrap">
+                        {timeAgo(n.created_at)}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-600 mt-0.5 leading-relaxed">
+                      {n.message}
+                    </p>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </motion.div>
         )}
       </div>
     </div>

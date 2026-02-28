@@ -1,1 +1,18 @@
 @import "tailwindcss";
+
+html {
+  scroll-behavior: smooth;
+}
+
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Smooth transitions on interactive elements globally */
+button,
+a,
+input,
+[role="button"] {
+  transition: all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
