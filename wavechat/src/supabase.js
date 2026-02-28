@@ -1,124 +1,36 @@
-// import { createClient } from "@supabase/supabase-js";
-// import { useId } from "react";
+import { createClient } from "@supabase/supabase-js";
 
-// const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-// const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabaseUrl = "https://rdvmbrlhgwgefposupvq.supabase.co";
+const supabaseAnonKey =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJkdm1icmxoZ3dnZWZwb3N1cHZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwNTgzMzQsImV4cCI6MjA3OTYzNDMzNH0.EWjxVAzcr1tBX_Mn6SmJjpf17Ro4KsZt5K4wsISUkw8";
 
-// export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
+/**
+ * Upload a profile picture to Supabase Storage.
+ * Returns the public URL of the uploaded image.
+ */
+export const uploadProfilePic = async (file, userId) => {
+    const fileExt = file.name.split(".").pop();
+    const fileName = `${userId}_${Date.now()}.${fileExt}`;
+    const filePath = fileName;
 
-// // for login user
-// export async function loginUser(email, password) {
-//     const { data, error } = await supabase.auth.signInWithPassword({
-//         email,
-//         password,
-//     });
+    const { data, error } = await supabase.storage
+        .from("profile-pics")
+        .upload(filePath, file, {
+            cacheControl: "3600",
+            upsert: true,
+        });
 
-//     if (error) {
-//         return { success: false, message: error.message };
-//     }
+    if (error) {
+        console.error("Upload error:", error);
+        throw error;
+    }
 
-//     return {
-//         success: true,
-//         user: data.user,
-//         session: data.session,
-//     };
-// }
+    // Get the public URL
+    const {
+        data: { publicUrl },
+    } = supabase.storage.from("profile-pics").getPublicUrl(filePath);
 
-// // for getting all user
-// const getProfiles = async () => {
-//     const { data, error } = await supabase
-//         .from("user_profile")
-//         .select("*");
-//     if (error) {
-//         console.log("Fetch error:", error);
-//         return;
-//     }
-
-//     return data;
-// };
-
-
-// const getProfileByEmail = async (email) => {
-//     const { data, error } = await supabase
-//         .from("user_profile")
-//         .select("*")
-//         .eq("email", email)
-//         .maybeSingle();   // if expecting only one profile
-
-//     if (error) throw error;
-
-//     return data;
-// };
-
-
-// const getProfileByUserId = async (id) => {
-//     const { data, error } = await supabase
-//         .from("user_profile")
-//         .select("fullname")
-//         .eq("id", id)
-//     if (error) {
-//         console.log(error);
-//         return null;
-//     };
-
-//     return data;
-// }
-
-// const handleSignup = async (user) => {
-//     const { fullname, email, password } = user;
-
-//     // 1️⃣ Check if email already exists in your profile table
-//     const existing = await getProfileByEmail(email);
-//     console.log("Existing user:", existing);
-
-
-//     if (existing) {
-//         return { success: false, message: "Email already registered!" };
-//     }
-
-//     // 2️⃣ SignUp with Supabase Auth
-//     const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-//         email,
-//         password,
-//     });
-
-//     if (signUpError) {
-//         console.log("Signup error:", signUpError);
-//         return { success: false, message: signUpError.message };
-//     }
-
-//     const userId = signUpData.user?.id;
-//     console.log(userId)
-
-//     // 3️⃣ Insert user profile
-//     if (userId) {
-//         const { error: insertError } = await supabase
-//             .from("user_profile")
-//             .insert([
-//                 { id: userId, fullname, email }
-//             ]);
-
-//         if (insertError) {
-//             return { success: false, message: insertError.message };
-//         }
-//     }
-
-//     return { success: true };
-// };
-
-// const getSession = async () => {
-//     const { data, error } = await supabase.auth.getSession();
-//     if (error) {
-//         console.log("Error getting session:", error);
-//         return null;
-//     }
-//     return data.session;
-// };
-
-
-
-// export { getProfiles, getProfileByEmail, handleSignup, getSession, getProfileByUserId };
-
-
-
+    return publicUrl;
+};

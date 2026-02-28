@@ -53,7 +53,7 @@ const ProfileCard = ({ profile, send }) => {
 
   // BUTTON RENDER LOGIC
   const renderButton = () => {
-   
+
 
     switch (status) {
       case "NONE":
@@ -62,11 +62,11 @@ const ProfileCard = ({ profile, send }) => {
             onClick={sendRequest}
             className="px-4 py-2 bg-blue-500 text-nowrap text-white rounded hover:bg-blue-600 transition"
           >
-            {loader ? 
-            
-            <SmallLoader size={16} className="ml-2" />
-             :
-             "Send Request"}
+            {loader ?
+
+              <SmallLoader size={16} className="ml-2" />
+              :
+              "Send Request"}
           </button>
         );
 
@@ -86,7 +86,7 @@ const ProfileCard = ({ profile, send }) => {
             onClick={acceptRequest}
             className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition"
           >
-           {loader ? "Accepting..." : "Accept"}
+            {loader ? "Accepting..." : "Accept"}
           </button>
         );
 
@@ -111,9 +111,9 @@ const ProfileCard = ({ profile, send }) => {
       className="group flex w-full items-center gap-4 p-4 rounded-2xl bg-white shadow-sm hover:shadow-md cursor-pointer transition-all border border-slate-200"
     >
       {/* Avatar */}
-      {profile.img_url ? (
+      {profile.profile_pic ? (
         <img
-          src={profile.img_url}
+          src={profile.profile_pic}
           className="w-12 h-12 rounded-full object-cover"
           alt=""
         />
@@ -123,7 +123,7 @@ const ProfileCard = ({ profile, send }) => {
         </div>
       )}
 
-  
+
       <div className="flex-1">
         <p className="font-medium text-slate-900">{profile.name}</p>
         <p className="text-sm text-slate-500 truncate">

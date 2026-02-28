@@ -1,68 +1,90 @@
 import React, { useState } from "react";
-import { FaHome, FaComments, FaBell, FaUser, FaCheckDouble } from "react-icons/fa";
-import BottomItem from "./components/BottomItem"
+import {
+  RiHome5Line, RiHome5Fill,
+  RiChat3Line, RiChat3Fill,
+  RiBellLine, RiBellFill,
+  RiUserLine, RiUserFill,
+  RiUserAddLine, RiUserAddFill,
+} from "react-icons/ri";
+import { AnimatePresence } from "framer-motion";
+import BottomItem from "./components/BottomItem";
 import Profile from "./pages/Profile";
 import Profilelist from "./pages/Profilelist";
-import NotificationPage from "./components/NotificationPage"
+import NotificationPage from "./components/NotificationPage";
 import Posts from "./pages/Posts";
 import UsersList from "./pages/UsersList";
-import { FaRegSquare } from "react-icons/fa6";
-import ChatRequestsPage from "./pages/ChatRequestsPage";
+import TabTransition from "./components/TabTransition";
+
+const tabs = [
+  {
+    key: "posts",
+    label: "Home",
+    icon: <RiHome5Line />,
+    activeIcon: <RiHome5Fill />,
+  },
+  {
+    key: "chat",
+    label: "Chats",
+    icon: <RiChat3Line />,
+    activeIcon: <RiChat3Fill />,
+  },
+  {
+    key: "send_Request",
+    label: "Explore",
+    icon: <RiUserAddLine />,
+    activeIcon: <RiUserAddFill />,
+  },
+  {
+    key: "notifications",
+    label: "Alerts",
+    icon: <RiBellLine />,
+    activeIcon: <RiBellFill />,
+  },
+  {
+    key: "profile",
+    label: "Profile",
+    icon: <RiUserLine />,
+    activeIcon: <RiUserFill />,
+  },
+];
+
+const tabContent = {
+  posts: <Posts />,
+  chat: <UsersList />,
+  send_Request: <Profilelist />,
+  notifications: <NotificationPage />,
+  profile: <Profile />,
+};
 
 const MainLayout = () => {
   const [activeTab, setActiveTab] = useState("posts");
 
   return (
-    <div className="h-screen flex flex-col bg-gray-100 ">
-
-      {/* 🔝 Navbar */}
-      <div className="h-14 bg-purple-600 text-white flex items-center py-4 shadow">
-        <h1 className="text-lg font-semibold">{activeTab}</h1>
-      </div>
-
+    <div className="h-screen flex flex-col bg-gray-50">
       {/* 🧱 Main Content */}
-      <div className="w-screen h-screen overflow-y-auto">
-        {activeTab === "posts" && <Posts />}
-        {activeTab === "notifications" && <NotificationPage />}
-        {activeTab === "send_Request" && <Profilelist />}
-        {activeTab === "profile" && <Profile />}
-        {activeTab === "chat" && <UsersList/>}
-    
-
+      <div className="flex-1 overflow-y-auto">
+        <AnimatePresence mode="wait">
+          <TabTransition tabKey={activeTab}>
+            {tabContent[activeTab] || <Posts />}
+          </TabTransition>
+        </AnimatePresence>
       </div>
 
-      {/* 🔽 Bottom Bar */}
-      <div className="h-16 bg-white border-t flex justify-around items-center">
-        <BottomItem
-          icon={<FaHome />}
-          label="Posts"
-          active={activeTab === "posts"}
-          onClick={() => setActiveTab("posts")}
-        />
-        <BottomItem
-          icon={<FaComments />}
-          label="Chat"
-          active={activeTab === "chat"}
-          onClick={() => setActiveTab("chat")}
-        />
-        <BottomItem
-          icon={<FaBell />}
-          label="Alerts"
-          active={activeTab === "notifications"}
-          onClick={() => setActiveTab("notifications")}
-        />
-        <BottomItem
-          icon={<FaUser />}
-          label="Profile"
-          active={activeTab === "profile"}
-          onClick={() => setActiveTab("profile")}
-        />
-        <BottomItem
-          icon={<FaRegSquare/>}
-          label="Request"
-          active={activeTab === "send_Request"}
-          onClick={() => setActiveTab("send_Request")}
-        />
+      {/* 🔽 Bottom Nav */}
+      <div className="relative">
+        {/* Glassmorphic bar */}
+        <div className="h-[72px] bg-white/80 backdrop-blur-xl border-t border-gray-100 shadow-[0_-4px_20px_rgba(0,0,0,0.04)] flex justify-around items-center px-2 pb-1 safe-bottom">
+          {tabs.map((tab) => (
+            <BottomItem
+              key={tab.key}
+              icon={tab.icon}
+              activeIcon={tab.activeIcon}
+              label={tab.label}
+              active={activeTab === tab.key}
+              onClick={() => setActiveTab(tab.key)}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );
