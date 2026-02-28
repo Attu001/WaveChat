@@ -4,7 +4,7 @@ import {
   RiChat3Line, RiChat3Fill,
   RiBellLine, RiBellFill,
   RiUserLine, RiUserFill,
-  RiUserAddLine, RiUserAddFill,
+  RiCompass3Line, RiCompass3Fill,
 } from "react-icons/ri";
 import { AnimatePresence } from "framer-motion";
 import BottomItem from "./components/BottomItem";
@@ -13,6 +13,7 @@ import Profilelist from "./pages/Profilelist";
 import NotificationPage from "./components/NotificationPage";
 import Posts from "./pages/Posts";
 import UsersList from "./pages/UsersList";
+import ExploreFeed from "./pages/ExploreFeed";
 import TabTransition from "./components/TabTransition";
 
 const tabs = [
@@ -23,16 +24,16 @@ const tabs = [
     activeIcon: <RiHome5Fill />,
   },
   {
+    key: "explore",
+    label: "Explore",
+    icon: <RiCompass3Line />,
+    activeIcon: <RiCompass3Fill />,
+  },
+  {
     key: "chat",
     label: "Chats",
     icon: <RiChat3Line />,
     activeIcon: <RiChat3Fill />,
-  },
-  {
-    key: "send_Request",
-    label: "Explore",
-    icon: <RiUserAddLine />,
-    activeIcon: <RiUserAddFill />,
   },
   {
     key: "notifications",
@@ -50,8 +51,8 @@ const tabs = [
 
 const tabContent = {
   posts: <Posts />,
+  explore: <ExploreFeed />,
   chat: <UsersList />,
-  send_Request: <Profilelist />,
   notifications: <NotificationPage />,
   profile: <Profile />,
 };

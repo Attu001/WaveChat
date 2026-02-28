@@ -164,18 +164,38 @@ const Login = () => {
           </motion.p>
         </div>
 
-        {/* Right Side - 3D Image / Placeholder */}
+        {/* Right Side - WaveChat Logo */}
         <motion.div
           variants={imageVariants}
-          className="w-full md:w-1/2 flex items-center justify-center relative p-6"
+          className="w-full md:w-1/2 flex flex-col items-center justify-center relative p-6 gap-4"
         >
-          <div className="w-80 h-80 md:w-96 md:h-96 rounded-3xl shadow-2xl overflow-hidden transform hover:scale-105 transition-transform duration-500">
+          <motion.div
+            animate={{ y: [0, -10, 0] }}
+            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+            className="w-56 h-56 md:w-72 md:h-72"
+          >
             <img
-              src="https://srbpwyxjbrbxzlerdust.supabase.co/storage/v1/object/public/portfolio-images/3Dmodels/20944201.jpg"
-              alt="3D model"
-              className="w-full h-full object-cover"
+              src="/wavechat-logo.png"
+              alt="WaveChat"
+              className="w-full h-full object-contain drop-shadow-2xl"
             />
-          </div>
+          </motion.div>
+          <motion.h2
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="text-white text-3xl md:text-4xl font-extrabold tracking-tight drop-shadow-lg"
+          >
+            WaveChat
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.7 }}
+            transition={{ delay: 0.7 }}
+            className="text-white/70 text-sm"
+          >
+            Connect. Chat. Wave.
+          </motion.p>
         </motion.div>
 
       </motion.div>
