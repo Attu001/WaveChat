@@ -10,7 +10,7 @@ export const fetchUsers = createAsyncThunk("users/fetchUsers", async () => {
 const usersSlice = createSlice({
   name: "users",
   initialState: {
-    list: [],        
+    list: [],
     loading: false,
     error: null,
   },
@@ -19,8 +19,7 @@ const usersSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchUsers.pending, (state) => {
-        // ⚠️ only show loader if data not already present
-        if (state.list === null || state.list.length === 0) state.loading = true;
+        state.loading = true;
         state.error = null;
       })
       .addCase(fetchUsers.fulfilled, (state, action) => {
@@ -29,8 +28,10 @@ const usersSlice = createSlice({
       })
       .addCase(fetchUsers.rejected, (state) => {
         state.loading = false;
-        state.error = "Failed to load users";
-        state.list = [];
+        // Only set error if we don't already have data
+        if (state.list.length === 0) {
+          state.error = "Failed to load users";
+        }
       });
   },
 });
