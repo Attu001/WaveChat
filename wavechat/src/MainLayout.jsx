@@ -5,6 +5,7 @@ import {
   RiBellLine, RiBellFill,
   RiUserLine, RiUserFill,
   RiCompass3Line, RiCompass3Fill,
+  RiUserAddLine, RiUserAddFill,
 } from "react-icons/ri";
 import { AnimatePresence } from "framer-motion";
 import BottomItem from "./components/BottomItem";
@@ -30,6 +31,12 @@ const tabs = [
     activeIcon: <RiCompass3Fill />,
   },
   {
+    key: "people",
+    label: "People",
+    icon: <RiUserAddLine />,
+    activeIcon: <RiUserAddFill />,
+  },
+  {
     key: "chat",
     label: "Chats",
     icon: <RiChat3Line />,
@@ -52,6 +59,7 @@ const tabs = [
 const tabContent = {
   posts: <Posts />,
   explore: <ExploreFeed />,
+  people: <Profilelist />,
   chat: <UsersList />,
   notifications: <NotificationPage />,
   profile: <Profile />,

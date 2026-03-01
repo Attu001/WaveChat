@@ -36,26 +36,35 @@ const Login = () => {
       setActivePopup("loader");
 
       const res = await loginUser(user.email, user.password);
-      if (res?.response?.data) {
-        setMessage(res?.response?.data)
-      }
 
       if (res?.access) {
         localStorage.setItem("access", res.access);
-        localStorage.setItem("id", res.user_id)
+        localStorage.setItem("id", res.user_id);
         setActivePopup("success");
 
         setTimeout(() => {
           navigate("/home");
         }, 3000);
       } else {
+        // Extract a clean error message from the response
+        const errData = res?.response?.data;
+        let errorMsg = "Invalid email or password.";
+
+        if (typeof errData === "string" && !errData.includes("<")) {
+          // Plain text error (not HTML)
+          errorMsg = errData;
+        } else if (typeof errData === "object" && errData !== null) {
+          // JSON error like { detail: "..." } or { error: "..." }
+          errorMsg = errData.detail || errData.error || errData.message || errorMsg;
+        }
+
+        setMessage(errorMsg);
         setActivePopup("error");
       }
     } catch (err) {
       console.error(err);
-
+      setMessage("Something went wrong. Please try again.");
       setActivePopup("error");
-      setActivePopup(null)
     }
   };
 

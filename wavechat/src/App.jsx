@@ -25,6 +25,7 @@ function App() {
   const audioRef = useRef(null);
   const audioUnlockedRef = useRef(false);
   const [toast, setToast] = useState(null);
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
 
   // Initialize audio element once
   useEffect(() => {
@@ -73,6 +74,23 @@ function App() {
     setToast(message);
     setTimeout(() => setToast(null), 3500);
   }, []);
+
+  // 🌐 Network status detection
+  useEffect(() => {
+    const goOffline = () => setIsOffline(true);
+    const goOnline = () => {
+      setIsOffline(false);
+      showToast("Back online ✅");
+    };
+
+    window.addEventListener("offline", goOffline);
+    window.addEventListener("online", goOnline);
+
+    return () => {
+      window.removeEventListener("offline", goOffline);
+      window.removeEventListener("online", goOnline);
+    };
+  }, [showToast]);
 
   // WebSocket connection
   useEffect(() => {
@@ -127,6 +145,22 @@ function App() {
 
   return (
     <>
+      {/* Offline banner */}
+      <AnimatePresence>
+        {isOffline && (
+          <motion.div
+            initial={{ y: -50, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -50, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 400, damping: 30 }}
+            className="fixed top-0 left-0 right-0 z-[200] bg-gradient-to-r from-red-500 to-rose-500 text-white text-center py-2.5 px-4 flex items-center justify-center gap-2 shadow-lg"
+          >
+            <div className="w-2 h-2 rounded-full bg-white animate-pulse" />
+            <span className="text-sm font-medium">You are not connected to the internet</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Toast notification */}
       <AnimatePresence>
         {toast && (
