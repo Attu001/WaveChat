@@ -18,11 +18,12 @@ const toggleLike = (postId) => api.post(`api/chat/posts/${postId}/like/`);
 const deletePost = (postId) => api.delete(`api/chat/posts/${postId}/delete/`);
 const fetchExploreFeed = (page = 1, perPage = 10) =>
     api.get(`api/chat/explore/?page=${page}&per_page=${perPage}`);
+const fetchChatHistory = (otherUserId) => api.get(`api/chat/history/${otherUserId}/`);
 
 export {
     UsersWithList, getProfileByUserId, getProfileOnChat,
     sendFriendRequest, fetchallRequests, acceptFriendRequest, rejectFriendRequest,
     notifications, updateProfile,
     fetchPosts, createPost, toggleLike, deletePost,
-    fetchExploreFeed,
+    fetchExploreFeed, fetchChatHistory,
 };

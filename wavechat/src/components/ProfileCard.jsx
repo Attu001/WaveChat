@@ -6,18 +6,33 @@ import { fetchUsers } from "../slices/userSlice";
 import SmallLoader from "../components/SmallLoader";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiCheck, FiX, FiSend, FiMessageCircle } from "react-icons/fi";
+import { useEffect } from "react";
 
 const ProfileCard = ({ profile, send }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  // ✅ local status state (important)
-  const [status, setStatus] = useState(profile.status);
-  const [loader, setLoader] = useState(false);
-  const [toast, setToast] = useState(null); // { type: "success" | "error", message: string }
+
+  // 1. Consolidated State Management
+  const [localState, setLocalState] = useState({
+    status: profile.status,
+    requestId: profile.request_id,
+    loader: false,
+    toast: null
+  });
+
+  // 2. Strict Prop Synchronization
+  // This ensures the card updates if the users list refreshes in the background
+  useEffect(() => {
+    setLocalState(prev => ({
+      ...prev,
+      status: profile.status,
+      requestId: profile.request_id
+    }));
+  }, [profile.status, profile.request_id]);
 
   const showToast = (type, message) => {
-    setToast({ type, message });
-    setTimeout(() => setToast(null), 2500);
+    setLocalState(prev => ({ ...prev, toast: { type, message } }));
+    setTimeout(() => setLocalState(prev => ({ ...prev, toast: null })), 2500);
   };
 
   const handleNavigate = () => {
@@ -26,41 +41,62 @@ const ProfileCard = ({ profile, send }) => {
     });
   };
 
-  // SEND REQUEST
+  // 3. Robust Action Handlers
   const sendRequest = async (e) => {
     e.stopPropagation();
     try {
-      setLoader(true);
-      await sendFriendRequest(profile.id);
-      setStatus("PENDING_SENT");
-      showToast("success", "Request sent! 🎉");
+      setLocalState(prev => ({ ...prev, loader: true }));
+      const res = await sendFriendRequest(profile.id);
+
+      const newStatus = res.data?.status || "PENDING_SENT";
+      const newRequestId = res.data?.request_id || null;
+
+      setLocalState(prev => ({
+        ...prev,
+        status: newStatus,
+        requestId: newRequestId
+      }));
+
+      showToast("success", res.data?.message || "Request sent! 🎉");
       dispatch(fetchUsers());
     } catch (err) {
-      // If request already exists, just flip to pending
-      if (err?.response?.status === 400) {
-        setStatus("PENDING_SENT");
-        showToast("info", "Request already sent");
+      const errorData = err?.response?.data;
+      if (errorData?.status) {
+        // Business logic error (e.g. they already sent us a request)
+        setLocalState(prev => ({
+          ...prev,
+          status: errorData.status,
+          requestId: errorData.request_id || prev.requestId
+        }));
+        showToast("info", errorData.error || "Please check existing request");
       } else {
         showToast("error", "Couldn't send request");
       }
     } finally {
-      setLoader(false);
+      setLocalState(prev => ({ ...prev, loader: false }));
     }
   };
 
-  // ACCEPT REQUEST
   const acceptRequest = async (e) => {
     e.stopPropagation();
     try {
-      setLoader(true);
-      await acceptFriendRequest(profile.request_id);
-      setStatus("ACCEPTED");
+      setLocalState(prev => ({ ...prev, loader: true }));
+      const rid = localState.requestId || profile.request_id;
+
+      if (!rid) {
+        showToast("error", "Request ID missing. Refreshing...");
+        dispatch(fetchUsers());
+        return;
+      }
+
+      await acceptFriendRequest(rid);
+      setLocalState(prev => ({ ...prev, status: "ACCEPTED" }));
       showToast("success", "Friend added! 🤝");
       dispatch(fetchUsers());
     } catch (err) {
       showToast("error", "Couldn't accept request");
     } finally {
-      setLoader(false);
+      setLocalState(prev => ({ ...prev, loader: false }));
     }
   };
 
@@ -77,8 +113,10 @@ const ProfileCard = ({ profile, send }) => {
     info: <FiSend size={14} />,
   };
 
-  // BUTTON RENDER LOGIC
+  // 4. Standardized Render Mapping
   const renderButton = () => {
+    const { status, loader } = localState;
+
     switch (status) {
       case "NONE":
         return (
@@ -88,25 +126,14 @@ const ProfileCard = ({ profile, send }) => {
             onClick={sendRequest}
             className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-nowrap text-white text-sm font-medium rounded-xl hover:shadow-lg hover:shadow-purple-200 transition-all"
           >
-            {loader ? (
-              <SmallLoader size={16} />
-            ) : (
-              <>
-                <FiSend size={14} />
-                Add Friend
-              </>
-            )}
+            {loader ? <SmallLoader size={16} /> : <><FiSend size={14} /> Add Friend</>}
           </motion.button>
         );
 
       case "PENDING_SENT":
         return (
-          <button
-            disabled
-            className="flex items-center gap-1.5 px-4 py-2 bg-gray-100 text-gray-500 text-sm font-medium rounded-xl cursor-not-allowed border border-gray-200"
-          >
-            <div className="w-2 h-2 rounded-full bg-amber-400" />
-            Pending
+          <button disabled className="flex items-center gap-1.5 px-4 py-2 bg-gray-100 text-gray-500 text-sm font-medium rounded-xl cursor-not-allowed border border-gray-200">
+            <div className="w-2 h-2 rounded-full bg-amber-400" /> Pending
           </button>
         );
 
@@ -118,14 +145,7 @@ const ProfileCard = ({ profile, send }) => {
             onClick={acceptRequest}
             className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-sm font-medium rounded-xl hover:shadow-lg hover:shadow-green-200 transition-all"
           >
-            {loader ? (
-              <SmallLoader size={16} />
-            ) : (
-              <>
-                <FiCheck size={14} strokeWidth={2.5} />
-                Accept
-              </>
-            )}
+            {loader ? <SmallLoader size={16} /> : <><FiCheck size={14} strokeWidth={2.5} /> Accept</>}
           </motion.button>
         );
 
@@ -137,20 +157,21 @@ const ProfileCard = ({ profile, send }) => {
             onClick={handleNavigate}
             className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-purple-500 to-violet-500 text-white text-sm font-medium rounded-xl hover:shadow-lg hover:shadow-purple-200 transition-all"
           >
-            <FiMessageCircle size={14} />
-            Chat
+            <FiMessageCircle size={14} /> Chat
           </motion.button>
         );
 
-      default:
-        return null;
+      default: return null;
     }
   };
 
+  const { toast } = localState;
+  const status_val = localState.status;
+
   return (
     <div
-      onClick={status === "ACCEPTED" ? handleNavigate : undefined}
-      className={`group relative flex w-full items-center gap-4 p-4 rounded-2xl bg-white shadow-sm hover:shadow-md transition-all border border-slate-200 ${status === "ACCEPTED" ? "cursor-pointer" : "cursor-default"}`}
+      onClick={status_val === "ACCEPTED" ? handleNavigate : undefined}
+      className={`group relative flex w-full items-center gap-4 p-4 rounded-2xl bg-white shadow-sm hover:shadow-md transition-all border border-slate-200 ${status_val === "ACCEPTED" ? "cursor-pointer" : "cursor-default"}`}
     >
       {/* Inline Toast */}
       <AnimatePresence>

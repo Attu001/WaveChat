@@ -7,7 +7,13 @@ const notificationSlice = createSlice({
   },
   reducers: {
     addNotification: (state, action) => {
-      state.notifications.unshift(action.payload);
+      const exists = state.notifications.find(n => n.id === action.payload.id);
+      if (!exists) {
+        state.notifications.unshift(action.payload);
+      }
+    },
+    setNotifications: (state, action) => {
+      state.notifications = action.payload;
     },
     clearNotifications: (state) => {
       state.notifications = [];
@@ -15,7 +21,7 @@ const notificationSlice = createSlice({
   },
 });
 
-export const { addNotification, clearNotifications } =
+export const { addNotification, setNotifications, clearNotifications } =
   notificationSlice.actions;
 
 export default notificationSlice.reducer;

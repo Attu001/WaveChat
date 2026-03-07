@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { IoIosArrowBack } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
-import { getProfileOnChat } from "../api/services/userServices";
+import { getProfileOnChat, fetchChatHistory } from "../api/services/userServices";
 import { ws_url } from "../api";
 import { useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -18,9 +18,13 @@ const ChatScreen = () => {
     const [newMessage, setNewMessage] = useState("");
     const [connectionStatus, setConnectionStatus] = useState("connecting"); // connecting | connected | disconnected
     const [profileLoading, setProfileLoading] = useState(true);
+    const [historyLoading, setHistoryLoading] = useState(true);
     const messagesEndRef = useRef(null);
     const inputRef = useRef(null);
     const { state } = useLocation();
+
+    // The other user's ID can come from state (navigated) or URL (refreshed)
+    const otherUserId = state?.userId || (id ? Number(id) : null);
 
     const loggedInUserId = Number(localStorage.getItem("id"));
     const token = localStorage.getItem("access");
@@ -32,14 +36,29 @@ const ChatScreen = () => {
 
     // Fetch other user's profile
     useEffect(() => {
-        if (state?.userId) {
+        if (otherUserId) {
             setProfileLoading(true);
-            getProfileOnChat(state.userId)
+            getProfileOnChat(otherUserId)
                 .then((res) => setProfile(res.data))
                 .catch(console.error)
                 .finally(() => setProfileLoading(false));
         }
-    }, [state]);
+    }, [otherUserId]);
+
+    // Fetch chat history
+    useEffect(() => {
+        if (!otherUserId) {
+            setHistoryLoading(false);
+            return;
+        }
+        setHistoryLoading(true);
+        fetchChatHistory(otherUserId)
+            .then((res) => {
+                setMessages(res.data || []);
+            })
+            .catch(console.error)
+            .finally(() => setHistoryLoading(false));
+    }, [otherUserId]);
 
     // WebSocket connection
     useEffect(() => {
@@ -59,7 +78,11 @@ const ChatScreen = () => {
         socketRef.current.onmessage = (e) => {
             const data = JSON.parse(e.data);
             if (data.type === "chat_message") {
-                setMessages((prev) => [...prev, { ...data, timestamp: new Date().toISOString() }]);
+                // Use server timestamp (created_at) if available
+                setMessages((prev) => [...prev, {
+                    ...data,
+                    timestamp: data.created_at || new Date().toISOString()
+                }]);
             }
         };
 
@@ -166,8 +189,20 @@ const ChatScreen = () => {
 
             {/* ─── Messages Area ─── */}
             <div className="flex-1 overflow-y-auto px-4 py-3">
+                {/* History loading state */}
+                {historyLoading && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="flex flex-col items-center justify-center h-full gap-2"
+                    >
+                        <div className="w-8 h-8 border-3 border-purple-300 border-t-purple-600 rounded-full animate-spin" />
+                        <p className="text-xs text-gray-400 font-medium">Loading messages...</p>
+                    </motion.div>
+                )}
+
                 {/* Empty state */}
-                {messages.length === 0 && (
+                {!historyLoading && messages.length === 0 && (
                     <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}

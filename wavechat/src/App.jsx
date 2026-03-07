@@ -3,7 +3,8 @@ import { Routes, Route, useLocation } from "react-router-dom";
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useDispatch } from "react-redux";
 import { ws_url } from "./api";
-import { addNotification } from "./slices/notificationSlice";
+import { addNotification, setNotifications } from "./slices/notificationSlice";
+import { notifications } from "./api/services/userServices";
 import { AnimatePresence, motion } from "framer-motion";
 
 import Login from "./pages/Login";
@@ -118,20 +119,16 @@ function App() {
       socket.onmessage = (event) => {
         const data = JSON.parse(event.data);
 
-        // 🔔 Add notification to Redux
-        dispatch(
-          addNotification({
-            message: data.message,
-            sender_id: data.sender_id,
-            time: new Date().toISOString(),
-          })
-        );
-
         // 🔊 Play sound
         playNotificationSound();
 
         // 💬 Show toast
         showToast(data.message);
+
+        // 🔔 Add notification to Redux if it's a real DB notification
+        if (data.is_notification && data.notification) {
+          dispatch(addNotification(data.notification));
+        }
       };
     };
 
@@ -142,6 +139,20 @@ function App() {
       socket?.close();
     };
   }, [userId, dispatch, playNotificationSound, showToast]);
+
+  // Fetch initial notifications
+  useEffect(() => {
+    if (!userId) return;
+    const loadNotifications = async () => {
+      try {
+        const response = await notifications();
+        dispatch(setNotifications(response.data));
+      } catch (err) {
+        console.error("Failed to fetch initial notifications:", err);
+      }
+    };
+    loadNotifications();
+  }, [userId, dispatch]);
 
   return (
     <>

@@ -1,4 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { setNotifications } from "../slices/notificationSlice";
 import { notifications } from "../api/services/userServices";
 import { motion } from "framer-motion";
 import PageLoader from "./PageLoader";
@@ -51,8 +53,10 @@ const getNotifStyle = (message) => {
 };
 
 const NotificationPage = () => {
-  const [notificationsList, setNotificationsList] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const notificationsList = useSelector((state) => state.notification.notifications);
+  const dispatch = useDispatch();
+
+  const [loading, setLoading] = useState(notificationsList.length === 0);
   const [error, setError] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -61,11 +65,11 @@ const NotificationPage = () => {
   const fetchNotifications = async (isRefresh = false) => {
     try {
       if (isRefresh) setRefreshing(true);
-      else setLoading(true);
+      else if (notificationsList.length === 0) setLoading(true);
       setError(null);
 
       const response = await notifications();
-      setNotificationsList(response.data);
+      dispatch(setNotifications(response.data));
     } catch (err) {
       console.error("Error fetching notifications:", err);
       setError("Failed to load notifications");
@@ -76,7 +80,10 @@ const NotificationPage = () => {
   };
 
   useEffect(() => {
-    fetchNotifications();
+    // Only fetch if Redux list is empty, otherwise background fetch is fine but we don't strictly need to force update here
+    if (notificationsList.length === 0) {
+      fetchNotifications();
+    }
   }, []);
 
   // Loading state
