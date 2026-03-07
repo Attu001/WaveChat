@@ -60,7 +60,7 @@ const NotificationPage = () => {
   const [error, setError] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
 
-  const audioRef = useRef(null);
+  // Audio is now globally managed by AudioContext in App.js
 
   const fetchNotifications = async (isRefresh = false) => {
     try {
@@ -125,7 +125,6 @@ const NotificationPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 flex justify-center px-4 py-6">
-      <audio ref={audioRef} src="/notification.wav" />
 
       <div className="w-full max-w-2xl">
         {/* Header with refresh */}
