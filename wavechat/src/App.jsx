@@ -1,11 +1,12 @@
 import "./App.css";
 import { Routes, Route, useLocation } from "react-router-dom";
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useDispatch } from "react-redux";
 import { ws_url } from "./api";
 import { addNotification, setNotifications } from "./slices/notificationSlice";
 import { notifications } from "./api/services/userServices";
 import { AnimatePresence, motion } from "framer-motion";
+import { useAudio } from "./context/AudioContext";
 
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -21,54 +22,10 @@ function App() {
   const userId = localStorage.getItem("id");
   const dispatch = useDispatch();
   const location = useLocation();
+  const { playNotificationSound } = useAudio();
 
-  // 🔊 Pre-load audio once and reuse
-  const audioRef = useRef(null);
-  const audioUnlockedRef = useRef(false);
   const [toast, setToast] = useState(null);
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
-
-  // Initialize audio element once
-  useEffect(() => {
-    const audio = new Audio("/notification.wav");
-    audio.volume = 0.6;
-    audio.preload = "auto";
-    audioRef.current = audio;
-  }, []);
-
-  // Unlock audio on first user interaction (browser autoplay policy)
-  useEffect(() => {
-    const unlock = () => {
-      if (!audioUnlockedRef.current && audioRef.current) {
-        audioRef.current
-          .play()
-          .then(() => {
-            audioRef.current.pause();
-            audioRef.current.currentTime = 0;
-            audioUnlockedRef.current = true;
-          })
-          .catch(() => { });
-      }
-    };
-
-    document.addEventListener("click", unlock, { once: true });
-    document.addEventListener("touchstart", unlock, { once: true });
-
-    return () => {
-      document.removeEventListener("click", unlock);
-      document.removeEventListener("touchstart", unlock);
-    };
-  }, []);
-
-  // Play notification sound
-  const playNotificationSound = useCallback(() => {
-    if (audioRef.current) {
-      audioRef.current.currentTime = 0;
-      audioRef.current
-        .play()
-        .catch((err) => console.log("Sound blocked:", err));
-    }
-  }, []);
 
   // Show toast notification
   const showToast = useCallback((message) => {
