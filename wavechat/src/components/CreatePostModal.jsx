@@ -18,14 +18,20 @@ const CreatePostModal = ({ isOpen, onClose, onPosted }) => {
         const file = e.target.files[0];
         if (!file) return;
 
+        setImagePreview((prev) => {
+            if (prev) URL.revokeObjectURL(prev);
+            return URL.createObjectURL(file);
+        });
         setImageFile(file);
-        setImagePreview(URL.createObjectURL(file));
         setError("");
     };
 
     const removeImage = () => {
+        setImagePreview((prev) => {
+            if (prev) URL.revokeObjectURL(prev);
+            return null;
+        });
         setImageFile(null);
-        setImagePreview(null);
     };
 
     const handleSubmit = async () => {
@@ -51,7 +57,10 @@ const CreatePostModal = ({ isOpen, onClose, onPosted }) => {
             onPosted(res.data);
             setContent("");
             setImageFile(null);
-            setImagePreview(null);
+            setImagePreview((prev) => {
+                if (prev) URL.revokeObjectURL(prev);
+                return null;
+            });
             onClose();
         } catch (err) {
             console.error(err);
