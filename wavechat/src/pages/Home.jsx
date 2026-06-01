@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { FaRegCircleUser } from "react-icons/fa6";
 import axios from "axios";
 import { base_url } from "../api";
+import { getProfileByUserId } from "../api/services/userServices";
 import { FaMessage } from "react-icons/fa6";
 import { motion } from "framer-motion";
 
@@ -12,6 +13,13 @@ const Home = () => {
     const id = searchParams.get("id")
     const token = searchParams.get("token")
     const [profile, setProfile] = useState(null);
+
+    // Fetch logged-in user's profile for the header badge
+    useEffect(() => {
+        getProfileByUserId()
+            .then((res) => setProfile(res.data))
+            .catch(console.error);
+    }, []);
 
     // EMAIL VERIFICATION
     useEffect(() => {
@@ -29,7 +37,7 @@ const Home = () => {
         verifyEmail();
     }, [token, id]);
 
-    const firstname = profile?.fullname;
+    const firstname = profile?.name;
 
     const heroTextVariants = {
         hidden: { opacity: 0, x: -60 },

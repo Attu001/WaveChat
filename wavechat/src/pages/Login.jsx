@@ -13,7 +13,8 @@ const Login = () => {
   const [message, setMessage] = useState(null)
 
   useEffect(() => {
-    localStorage.clear();
+    localStorage.removeItem("access");
+    localStorage.removeItem("id");
   }, [])
 
 

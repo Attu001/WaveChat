@@ -27,7 +27,6 @@ const ChatScreen = () => {
     const otherUserId = state?.userId || (id ? Number(id) : null);
 
     const loggedInUserId = Number(localStorage.getItem("id"));
-    const token = localStorage.getItem("access");
 
     // Redirect if not logged in
     useEffect(() => {
@@ -64,10 +63,11 @@ const ChatScreen = () => {
     useEffect(() => {
         if (!loggedInUserId || !id) return;
 
+        const currentToken = localStorage.getItem("access");
         setConnectionStatus("connecting");
 
         socketRef.current = new WebSocket(
-            `${ws_url}ws/chat/${loggedInUserId}/${id}/?token=${token}`
+            `${ws_url}ws/chat/${loggedInUserId}/${id}/?token=${currentToken}`
         );
 
         socketRef.current.onopen = () => {

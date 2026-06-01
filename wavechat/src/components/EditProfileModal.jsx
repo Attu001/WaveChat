@@ -69,10 +69,12 @@ const EditProfileModal = ({ isOpen, onClose, profile, onSave }) => {
         try {
             const userId = localStorage.getItem("id");
             const publicUrl = await uploadProfilePic(file, userId);
+            URL.revokeObjectURL(localUrl);
             setForm((prev) => ({ ...prev, profile_pic: publicUrl }));
             setPreviewUrl(publicUrl);
         } catch (err) {
             console.error("Upload failed:", err);
+            URL.revokeObjectURL(localUrl);
             setError("Failed to upload image. Please try again.");
             setPreviewUrl(profile?.profile_pic || "");
         } finally {

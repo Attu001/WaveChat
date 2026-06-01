@@ -6,7 +6,6 @@ import { ws_url } from "./api";
 import { addNotification, setNotifications } from "./slices/notificationSlice";
 import { notifications } from "./api/services/userServices";
 import { AnimatePresence, motion } from "framer-motion";
-import { useAudio } from "./context/AudioContext";
 
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -22,7 +21,6 @@ function App() {
   const userId = localStorage.getItem("id");
   const dispatch = useDispatch();
   const location = useLocation();
-  const { playNotificationSound } = useAudio();
 
   const [toast, setToast] = useState(null);
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
@@ -31,6 +29,15 @@ function App() {
   const showToast = useCallback((message) => {
     setToast(message);
     setTimeout(() => setToast(null), 3500);
+  }, []);
+
+  // Play notification sound robustly
+  const playNotificationSound = useCallback(() => {
+    const audioEl = document.getElementById("notification-sound");
+    if (audioEl) {
+      audioEl.currentTime = 0;
+      audioEl.play().catch(err => console.log("Autoplay blocked:", err));
+    }
   }, []);
 
   // 🌐 Network status detection
@@ -113,6 +120,8 @@ function App() {
 
   return (
     <>
+      <audio id="notification-sound" src="/notification.wav" preload="auto" />
+
       {/* Offline banner */}
       <AnimatePresence>
         {isOffline && (

@@ -99,6 +99,12 @@ const ExploreFeed = () => {
         loadFeed(1);
     }, [loadFeed]);
 
+    useEffect(() => {
+        return () => {
+            if (observerRef.current) observerRef.current.disconnect();
+        };
+    }, []);
+
     // Infinite scroll with IntersectionObserver
     const lastItemRef = useCallback(
         (node) => {

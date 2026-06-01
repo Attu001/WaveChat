@@ -1,16 +1,10 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { motion } from "framer-motion";
-import { base_url } from "../api";
-import { fetchallRequests } from "../api/services/userServices";
+import { fetchallRequests, acceptFriendRequest, rejectFriendRequest } from "../api/services/userServices";
 
 export default function ChatRequestsPage() {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  const token = localStorage.getItem("access");
-
-
 
   const fetchRequests = async () => {
     try {
@@ -29,12 +23,7 @@ export default function ChatRequestsPage() {
 
   const handleAccept = async (requestId) => {
     try {
-      await axios.post(
-        `${base_url}api/chat/requests/accept/${requestId}/`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
+      await acceptFriendRequest(requestId);
       setRequests((prev) => prev.filter((r) => r.id !== requestId));
     } catch (err) {
       console.error("Accept failed", err);
@@ -43,12 +32,7 @@ export default function ChatRequestsPage() {
 
   const handleReject = async (requestId) => {
     try {
-      await axios.post(
-        `${base_url}reject-request/${requestId}/`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
+      await rejectFriendRequest(requestId);
       setRequests((prev) => prev.filter((r) => r.id !== requestId));
     } catch (err) {
       console.error("Reject failed", err);
