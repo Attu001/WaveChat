@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { setNotifications } from "../slices/notificationSlice";
-import { notifications } from "../api/services/userServices";
-import { motion } from "framer-motion";
+import { setNotifications, markNotificationAsRead, removeNotification } from "../slices/notificationSlice";
+import { notifications, unreadNotificationCount, markNotificationRead, markAllNotificationsRead } from "../api/services/userServices";
+import { motion, AnimatePresence } from "framer-motion";
 import PageLoader from "./PageLoader";
-import { FiBell, FiRefreshCw } from "react-icons/fi";
+import { FiBell, FiRefreshCw, FiCheck, FiCheckCircle } from "react-icons/fi";
 
 const containerVariants = {
   hidden: {},
@@ -59,6 +59,7 @@ const NotificationPage = () => {
   const [loading, setLoading] = useState(notificationsList.length === 0);
   const [error, setError] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   // Audio is now globally managed by AudioContext in App.js
 
@@ -70,6 +71,10 @@ const NotificationPage = () => {
 
       const response = await notifications();
       dispatch(setNotifications(response.data));
+      
+      // Fetch unread count
+      const countResponse = await unreadNotificationCount();
+      setUnreadCount(countResponse.data.unread_count);
     } catch (err) {
       console.error("Error fetching notifications:", err);
       setError("Failed to load notifications");
@@ -85,6 +90,29 @@ const NotificationPage = () => {
       fetchNotifications();
     }
   }, []);
+
+  // Mark single notification as read
+  const handleMarkAsRead = async (notificationId, e) => {
+    e.stopPropagation();
+    try {
+      await markNotificationRead(notificationId);
+      dispatch(markNotificationAsRead(notificationId));
+      setUnreadCount(prev => Math.max(0, prev - 1));
+    } catch (err) {
+      console.error("Error marking notification as read:", err);
+    }
+  };
+
+  // Mark all notifications as read
+  const handleMarkAllAsRead = async () => {
+    try {
+      await markAllNotificationsRead();
+      dispatch(removeNotification()); // This will mark all as read in the slice
+      setUnreadCount(0);
+    } catch (err) {
+      console.error("Error marking all notifications as read:", err);
+    }
+  };
 
   // Loading state
   if (loading && notificationsList.length === 0) {
@@ -134,26 +162,44 @@ const NotificationPage = () => {
           className="flex items-center justify-between mb-5"
         >
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center relative">
               <FiBell className="text-purple-600 text-lg" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </span>
+              )}
             </div>
             <div>
               <h2 className="text-xl font-bold text-gray-800">Notifications</h2>
               <p className="text-xs text-gray-400">
-                {notificationsList.length} notification{notificationsList.length !== 1 ? "s" : ""}
+                {unreadCount > 0 ? `${unreadCount} unread` : `${notificationsList.length} total`}
               </p>
             </div>
           </div>
 
-          <motion.button
-            whileHover={{ scale: 1.05, rotate: 180 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={() => fetchNotifications(true)}
-            disabled={refreshing}
-            className="w-9 h-9 rounded-full bg-white shadow-sm border border-gray-100 flex items-center justify-center text-gray-400 hover:text-purple-600 transition"
-          >
-            <FiRefreshCw size={16} className={refreshing ? "animate-spin" : ""} />
-          </motion.button>
+          <div className="flex items-center gap-2">
+            {unreadCount > 0 && (
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleMarkAllAsRead}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-purple-100 text-purple-700 rounded-lg text-xs font-medium hover:bg-purple-200 transition"
+              >
+                <FiCheckCircle size={14} />
+                Mark all read
+              </motion.button>
+            )}
+            <motion.button
+              whileHover={{ scale: 1.05, rotate: 180 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={() => fetchNotifications(true)}
+              disabled={refreshing}
+              className="w-9 h-9 rounded-full bg-white shadow-sm border border-gray-100 flex items-center justify-center text-gray-400 hover:text-purple-600 transition"
+            >
+              <FiRefreshCw size={16} className={refreshing ? "animate-spin" : ""} />
+            </motion.button>
+          </div>
         </motion.div>
 
         {/* Inline refresh banner */}
@@ -196,7 +242,11 @@ const NotificationPage = () => {
                   key={n.id || index}
                   variants={itemVariants}
                   whileHover={{ x: 3, boxShadow: "0 4px 20px rgba(0,0,0,0.08)" }}
-                  className={`flex items-start gap-3 p-4 rounded-2xl border ${style.bg} ${style.border} transition-all`}
+                  className={`flex items-start gap-3 p-4 rounded-2xl border transition-all ${
+                    n.is_read 
+                      ? `${style.bg} ${style.border}` 
+                      : "bg-white border-purple-200 shadow-sm"
+                  }`}
                 >
                   {/* Icon */}
                   <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm flex-shrink-0 text-lg">
@@ -206,9 +256,14 @@ const NotificationPage = () => {
                   {/* Content */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2">
-                      <p className={`text-sm font-semibold ${style.accent}`}>
-                        {n.sender?.name || "WaveChat"}
-                      </p>
+                      <div className="flex items-center gap-2">
+                        <p className={`text-sm font-semibold ${style.accent}`}>
+                          {n.sender?.name || "WaveChat"}
+                        </p>
+                        {!n.is_read && (
+                          <span className="w-2 h-2 bg-purple-500 rounded-full flex-shrink-0" />
+                        )}
+                      </div>
                       <span className="text-[11px] text-gray-400 whitespace-nowrap">
                         {timeAgo(n.created_at)}
                       </span>
@@ -217,6 +272,19 @@ const NotificationPage = () => {
                       {n.message}
                     </p>
                   </div>
+
+                  {/* Mark as read button */}
+                  {!n.is_read && (
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={(e) => handleMarkAsRead(n.id, e)}
+                      className="flex-shrink-0 w-8 h-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center hover:bg-purple-200 transition"
+                      title="Mark as read"
+                    >
+                      <FiCheck size={16} />
+                    </motion.button>
+                  )}
                 </motion.div>
               );
             })}
