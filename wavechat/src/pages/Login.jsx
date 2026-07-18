@@ -13,7 +13,7 @@ const Login = () => {
   const [message, setMessage] = useState(null)
 
   useEffect(() => {
-    localStorage.removeItem("access");
+    localStorage.removeItem("access_token");
     localStorage.removeItem("id");
   }, [])
 
@@ -39,7 +39,7 @@ const Login = () => {
       const res = await loginUser(user.email, user.password);
 
       if (res?.access) {
-        localStorage.setItem("access", res.access);
+        localStorage.setItem("access_token", res.access);
         localStorage.setItem("id", res.user_id);
         setActivePopup("success");
 

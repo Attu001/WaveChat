@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { FiCheck, FiX, FiSend, FiMessageCircle } from "react-icons/fi";
 import { useEffect } from "react";
 
-const ProfileCard = ({ profile, send }) => {
+const ProfileCard = ({ profile }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 

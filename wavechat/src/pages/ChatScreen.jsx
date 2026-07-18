@@ -63,7 +63,13 @@ const ChatScreen = () => {
     useEffect(() => {
         if (!loggedInUserId || !id) return;
 
-        const currentToken = localStorage.getItem("access");
+        const currentToken = localStorage.getItem("access_token");
+        if (!currentToken) {
+            console.error("No access token found");
+            navigate("/login");
+            return;
+        }
+
         setConnectionStatus("connecting");
 
         socketRef.current = new WebSocket(

@@ -32,7 +32,7 @@ const VerifyUser = () => {
         }
 
         if (data.access) {
-          localStorage.setItem("access", data.access);
+          localStorage.setItem("access_token", data.access);
         }
 
         if (data.user_id) {
