@@ -1,14 +1,17 @@
 import React, { useEffect, useRef, useState } from "react";
-import { FiLogOut, FiEdit } from "react-icons/fi";
+import { FiLogOut, FiEdit, FiMoon, FiSun, FiSettings, FiShield } from "react-icons/fi";
 import { useNavigate } from "react-router";
 import { getProfileByUserId } from "../api/services/userServices";
 import { motion } from "framer-motion";
+import { useTheme } from "../context/ThemeContext";
+import { ProfileSkeleton } from "../components/SkeletonLoader";
 import EditProfileModal from "../components/EditProfileModal";
 
 const Profile = () => {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [editOpen, setEditOpen] = useState(false);
+  const { isDark, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const hasfetched = useRef(false);
 
@@ -59,11 +62,7 @@ const Profile = () => {
   };
 
   if (loading) {
-    return (
-      <div className="flex-1 flex items-center h-screen justify-center">
-        Loading...
-      </div>
-    );
+    return <ProfileSkeleton />;
   }
 
   return (
@@ -71,12 +70,14 @@ const Profile = () => {
       variants={containerVariants}
       initial="hidden"
       animate="visible"
-      className="flex-1 overflow-y-auto h-screen bg-gray-100 pb-24"
+      className="flex-1 overflow-y-auto pb-24"
+      style={{ backgroundColor: 'var(--color-surface)' }}
     >
       {/* Header */}
       <motion.div
         variants={headerVariants}
-        className="relative bg-gradient-to-r from-purple-600 to-indigo-600 px-6 pt-10 pb-16"
+        className="relative px-6 pt-10 pb-16"
+        style={{ background: 'var(--gradient-hero)' }}
       >
         <div className="flex items-center gap-5">
           {profile?.profile_pic ? (
@@ -86,7 +87,9 @@ const Profile = () => {
               className="w-24 h-24 rounded-full border-4 border-white object-cover shadow-lg"
             />
           ) : (
-            <div className="w-24 h-24 rounded-full bg-white text-purple-600 flex items-center justify-center text-4xl font-bold shadow-lg">
+            <div className="w-24 h-24 rounded-full bg-white flex items-center justify-center text-4xl font-bold shadow-lg"
+              style={{ color: 'var(--color-primary)' }}
+            >
               {profile?.name?.[0]?.toUpperCase() || "A"}
             </div>
           )}
@@ -108,23 +111,50 @@ const Profile = () => {
       {/* Actions */}
       <motion.div
         variants={itemVariants}
-        className="mx-4 mt-4 bg-white rounded-2xl shadow-sm divide-y"
+        className="mx-4 mt-4 rounded-2xl shadow-sm divide-y"
+        style={{
+          backgroundColor: 'var(--color-surface)',
+          border: '1px solid var(--color-border)',
+        }}
       >
         <motion.button
           whileHover={{ x: 4 }}
           whileTap={{ scale: 0.98 }}
           onClick={() => setEditOpen(true)}
-          className="w-full flex items-center gap-3 px-5 py-4 text-gray-700 hover:bg-gray-50 transition"
+          className="w-full flex items-center gap-3 px-5 py-4 transition rounded-t-2xl"
+          style={{ color: 'var(--color-text-primary)' }}
         >
-          <FiEdit className="text-purple-600" />
+          <FiEdit style={{ color: 'var(--color-primary)' }} />
           <span className="font-medium">Edit Profile</span>
         </motion.button>
 
         <motion.button
           whileHover={{ x: 4 }}
           whileTap={{ scale: 0.98 }}
+          onClick={toggleTheme}
+          className="w-full flex items-center gap-3 px-5 py-4 transition"
+          style={{ color: 'var(--color-text-primary)' }}
+        >
+          {isDark ? <FiSun style={{ color: 'var(--color-accent)' }} /> : <FiMoon style={{ color: 'var(--color-primary)' }} />}
+          <span className="font-medium">{isDark ? "Light Mode" : "Dark Mode"}</span>
+        </motion.button>
+
+        <motion.button
+          whileHover={{ x: 4 }}
+          whileTap={{ scale: 0.98 }}
+          className="w-full flex items-center gap-3 px-5 py-4 transition"
+          style={{ color: 'var(--color-text-primary)' }}
+        >
+          <FiSettings style={{ color: 'var(--color-text-tertiary)' }} />
+          <span className="font-medium">Settings</span>
+        </motion.button>
+
+        <motion.button
+          whileHover={{ x: 4 }}
+          whileTap={{ scale: 0.98 }}
           onClick={() => navigate("/login")}
-          className="w-full flex items-center gap-3 px-5 py-4 text-red-600 hover:bg-red-50 transition"
+          className="w-full flex items-center gap-3 px-5 py-4 transition rounded-b-2xl"
+          style={{ color: '#ef4444' }}
         >
           <FiLogOut />
           <span className="font-medium">Logout</span>
@@ -134,9 +164,15 @@ const Profile = () => {
       {/* Personal Info */}
       <motion.div
         variants={itemVariants}
-        className="mx-4 mt-4 bg-white rounded-2xl shadow-sm px-5 py-4"
+        className="mx-4 mt-4 rounded-2xl shadow-sm px-5 py-4"
+        style={{
+          backgroundColor: 'var(--color-surface)',
+          border: '1px solid var(--color-border)',
+        }}
       >
-        <h4 className="text-xs font-semibold text-gray-400 uppercase mb-3">
+        <h4 className="text-xs font-semibold uppercase mb-3"
+          style={{ color: 'var(--color-text-tertiary)' }}
+        >
           Personal Information
         </h4>
 
@@ -160,16 +196,11 @@ const Profile = () => {
 
 export default Profile;
 
-const Stat = ({ label, value }) => (
-  <div className="text-center">
-    <p className="text-xl font-bold text-gray-900">{value}</p>
-    <p className="text-xs text-gray-500">{label}</p>
-  </div>
-);
-
 const InfoRow = ({ label, value }) => (
-  <div className="flex justify-between items-center py-3 border-b last:border-none">
-    <span className="text-sm text-gray-500">{label}</span>
-    <span className="text-sm font-medium text-gray-900">{value}</span>
+  <div className="flex justify-between items-center py-3 border-b last:border-none"
+    style={{ borderColor: 'var(--color-border)' }}
+  >
+    <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>{label}</span>
+    <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>{value}</span>
   </div>
 );

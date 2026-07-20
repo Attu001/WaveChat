@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useSelector } from "react-redux";
 import {
   RiHome5Line, RiHome5Fill,
   RiChat3Line, RiChat3Fill,
@@ -67,9 +68,11 @@ const tabContent = {
 
 const MainLayout = () => {
   const [activeTab, setActiveTab] = useState("posts");
+  const notifications = useSelector((state) => state.notification?.notifications || []);
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
-    <div className="h-screen flex flex-col bg-gray-50">
+    <div className="h-screen flex flex-col" style={{ backgroundColor: 'var(--color-surface)' }}>
       {/* 🧱 Main Content */}
       <div className="flex-1 overflow-y-auto">
         <AnimatePresence mode="wait">
@@ -82,7 +85,14 @@ const MainLayout = () => {
       {/* 🔽 Bottom Nav */}
       <div className="relative">
         {/* Glassmorphic bar */}
-        <div className="h-[72px] bg-white/80 backdrop-blur-xl border-t border-gray-100 shadow-[0_-4px_20px_rgba(0,0,0,0.04)] flex justify-around items-center px-2 pb-1 safe-bottom">
+        <div
+          className="h-[72px] backdrop-blur-xl border-t flex justify-around items-center px-2 pb-1 safe-bottom"
+          style={{
+            backgroundColor: 'var(--gradient-glass)',
+            borderColor: 'var(--color-border)',
+            boxShadow: '0 -4px 20px rgba(0,0,0,0.04)',
+          }}
+        >
           {tabs.map((tab) => (
             <BottomItem
               key={tab.key}
@@ -91,6 +101,7 @@ const MainLayout = () => {
               label={tab.label}
               active={activeTab === tab.key}
               onClick={() => setActiveTab(tab.key)}
+              badge={tab.key === "notifications" ? unreadCount : 0}
             />
           ))}
         </div>

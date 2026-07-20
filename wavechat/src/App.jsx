@@ -6,6 +6,7 @@ import { ws_url } from "./api";
 import { addNotification, setNotifications } from "./slices/notificationSlice";
 import { notifications } from "./api/services/userServices";
 import { AnimatePresence, motion } from "framer-motion";
+import { FiSun, FiMoon } from "react-icons/fi";
 
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -16,11 +17,13 @@ import VerifyUser from "./pages/VerifyUser";
 import NotificationPage from "./components/NotificationPage";
 import MainLayout from "./MainLayout";
 import PageTransition from "./components/PageTransition";
+import { useTheme } from "./context/ThemeContext";
 
 function App() {
   const userId = localStorage.getItem("id");
   const dispatch = useDispatch();
   const location = useLocation();
+  const { isDark, toggleTheme } = useTheme();
 
   const [toast, setToast] = useState(null);
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
@@ -125,6 +128,23 @@ function App() {
     <>
       <audio id="notification-sound" src="/notification.wav" preload="auto" />
 
+      {/* Dark mode toggle - floating button */}
+      <motion.button
+        initial={{ opacity: 0, scale: 0 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.5, type: "spring", stiffness: 400, damping: 25 }}
+        onClick={toggleTheme}
+        className="fixed top-4 right-4 z-[150] w-10 h-10 rounded-full flex items-center justify-center shadow-lg backdrop-blur-md border transition-all duration-300 hover:scale-110"
+        style={{
+          backgroundColor: isDark ? 'rgba(30, 41, 59, 0.8)' : 'rgba(255, 255, 255, 0.8)',
+          borderColor: isDark ? 'rgba(51, 65, 85, 0.5)' : 'rgba(229, 231, 235, 0.5)',
+          color: isDark ? '#f1f5f9' : '#6d28d9',
+        }}
+        whileTap={{ scale: 0.85 }}
+      >
+        {isDark ? <FiSun size={18} /> : <FiMoon size={18} />}
+      </motion.button>
+
       {/* Offline banner */}
       <AnimatePresence>
         {isOffline && (
@@ -141,7 +161,7 @@ function App() {
         )}
       </AnimatePresence>
 
-      {/* Toast notification */}
+      {/* Toast notification - theme aware */}
       <AnimatePresence>
         {toast && (
           <motion.div
@@ -149,15 +169,21 @@ function App() {
             animate={{ opacity: 1, y: 0, x: "-50%" }}
             exit={{ opacity: 0, y: -60, x: "-50%" }}
             transition={{ type: "spring", stiffness: 400, damping: 30 }}
-            className="fixed top-4 left-1/2 z-[100] max-w-sm w-[90%] bg-white rounded-2xl shadow-xl border border-purple-100 px-4 py-3 flex items-center gap-3"
+            className="fixed top-16 left-1/2 z-[100] max-w-sm w-[90%] rounded-2xl shadow-xl border px-4 py-3 flex items-center gap-3 cursor-pointer"
+            style={{
+              backgroundColor: isDark ? 'var(--color-surface-secondary)' : '#ffffff',
+              borderColor: isDark ? 'var(--color-border)' : 'var(--color-primary-bg)',
+            }}
             onClick={() => setToast(null)}
           >
-            <div className="w-9 h-9 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
+            <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
+              style={{ backgroundColor: isDark ? 'rgba(139, 92, 246, 0.2)' : 'var(--color-primary-bg)' }}
+            >
               <span className="text-lg">🔔</span>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-semibold text-purple-600">New Notification</p>
-              <p className="text-sm text-gray-700 truncate">{toast}</p>
+              <p style={{ color: 'var(--color-primary)' }} className="text-xs font-semibold">New Notification</p>
+              <p style={{ color: isDark ? 'var(--color-text-secondary)' : '#374151' }} className="text-sm truncate">{toast}</p>
             </div>
           </motion.div>
         )}
