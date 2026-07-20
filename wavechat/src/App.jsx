@@ -67,8 +67,11 @@ function App() {
     let socket;
 
     const connectSocket = () => {
+      // Get JWT token from localStorage
+      const token = localStorage.getItem("access_token");
+      
       socket = new WebSocket(
-        `${ws_url}ws/notifications/${userId}/`
+        `${ws_url}ws/notifications/${userId}/?token=${token}`
       );
 
       socket.onopen = () => {

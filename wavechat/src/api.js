@@ -29,21 +29,24 @@ export const loginUser = async (email, password) => {
         })
         return response.data
     } catch (e) {
-        console.log(e)
-        return e
+        console.error("Login error:", e)
+        throw e
     }
 }
 
 
 export const registerUser = async (name, email, password) => {
-
-    const response = await axios.post(base_url + "auth/register/", {
-        name,
-        email,
-        password
-    })
-    return response
-
+    try {
+        const response = await axios.post(base_url + "auth/register/", {
+            name,
+            email,
+            password
+        })
+        return response.data
+    } catch (e) {
+        console.error("Registration error:", e)
+        throw e
+    }
 }
 
 export const allUsers = async () => {
@@ -51,10 +54,9 @@ export const allUsers = async () => {
         const response = await axios.get(base_url + "auth/all_users/")
         return response.data
     } catch (e) {
-        console.log(e)
-        return e
+        console.error("Fetch users error:", e)
+        throw e
     }
-
 }
 
 

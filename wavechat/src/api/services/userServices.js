@@ -8,6 +8,9 @@ const fetchallRequests = () => api.get("api/chat/requests/pending/")
 const acceptFriendRequest = (requestId) => api.post(`api/chat/requests/accept/${requestId}/`);
 const rejectFriendRequest = (requestId) => api.post(`api/chat/requests/reject/${requestId}/`);
 const notifications = () => api.get("api/chat/notifications/");
+const unreadNotificationCount = () => api.get("api/chat/notifications/unread-count/");
+const markNotificationRead = (notificationId) => api.post(`api/chat/notifications/mark-read/${notificationId}/`);
+const markAllNotificationsRead = () => api.post("api/chat/notifications/mark-all-read/");
 const updateProfile = (data) => api.patch("auth/profile/update/", data);
 const getProfileOnChat = (userId) => api.get(`auth/profile/${userId}/`);
 
@@ -23,7 +26,7 @@ const fetchChatHistory = (otherUserId) => api.get(`api/chat/history/${otherUserI
 export {
     UsersWithList, getProfileByUserId, getProfileOnChat,
     sendFriendRequest, fetchallRequests, acceptFriendRequest, rejectFriendRequest,
-    notifications, updateProfile,
+    notifications, unreadNotificationCount, markNotificationRead, markAllNotificationsRead, updateProfile,
     fetchPosts, createPost, toggleLike, deletePost,
     fetchExploreFeed, fetchChatHistory,
 };
