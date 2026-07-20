@@ -6,6 +6,7 @@ import { base_url } from "../api";
 import { getProfileByUserId } from "../api/services/userServices";
 import { FaMessage } from "react-icons/fa6";
 import { motion } from "framer-motion";
+import { useTheme } from "../context/ThemeContext";
 
 const Home = () => {
     const navigate = useNavigate();
