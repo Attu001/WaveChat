@@ -175,7 +175,7 @@ const Signup = () => {
           </motion.p>
 
           {/* Social Signup Buttons */}
-          <motion.div variants={itemVariants} className="flex gap-3 mb-6">
+          {/* <motion.div variants={itemVariants} className="flex gap-3 mb-6">
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
@@ -202,16 +202,16 @@ const Signup = () => {
               <FaApple size={16} />
               Apple
             </motion.button>
-          </motion.div>
+          </motion.div> */}
 
           {/* Divider */}
-          <motion.div variants={itemVariants} className="flex items-center gap-3 mb-6">
+          {/* <motion.div variants={itemVariants} className="flex items-center gap-3 mb-6">
             <div className="flex-1 h-px" style={{ backgroundColor: isDark ? 'rgba(71, 85, 105, 0.5)' : 'rgba(255, 255, 255, 0.2)' }} />
             <span className="text-xs font-medium" style={{ color: isDark ? 'rgba(148, 163, 184, 0.6)' : 'rgba(255, 255, 255, 0.5)' }}>
               OR SIGN UP WITH EMAIL
             </span>
             <div className="flex-1 h-px" style={{ backgroundColor: isDark ? 'rgba(71, 85, 105, 0.5)' : 'rgba(255, 255, 255, 0.2)' }} />
-          </motion.div>
+          </motion.div> */}
 
           {/* Full Name */}
           <motion.div variants={itemVariants} className="relative mb-4">
